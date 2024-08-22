@@ -10,6 +10,9 @@ public class Boid_script : MonoBehaviour
     public GameObject target;  // find the Target entity
     Drive ds;
 
+    [SerializeField] bool viewCooldown = false; 
+    [SerializeField] bool isFleeing = false;
+
 
     [Header ("Wander Settings")]
         [SerializeField] float wanderRadius = 10;
@@ -30,20 +33,56 @@ public class Boid_script : MonoBehaviour
         ds = target.GetComponent<Drive>(); // This is costly to do so do it once
 
         speed = Random.Range(FlockManager.FM.minSpeed, FlockManager.FM.maxSpeed);
+        target = GameObject.FindWithTag("Predator");
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Seek(target.transform.position);
-        // Wander();
-
-        if(Random.Range(0, 100) < 10)
+        if (!viewCooldown)
         {
-            ApplyRules();
+            if (CanSeeTarget())
+            {
+                Flee(target.transform.position);
+                viewCooldown = true; 
+                isFleeing = true;
+
+                // if (!TargetInRange())
+                // {
+                Invoke("ViewBehaviourCooldown", 5);
+                // }
+                
+            }
+            else if (isFleeing && TargetInRange())
+            {
+                Flee(target.transform.position);
+            }
+            else if (isFleeing && !TargetInRange())
+            {
+                isFleeing = false;
+            }
+            else 
+            {
+                if(Random.Range(0, 100) < 10)
+                {
+                    if(Random.Range(0, 100) < 30){
+                        ApplyRules();
+                    }
+                    else { 
+                        Wander();
+                    }
+                }
+            }
         }
-        else { 
-            Wander();
+        else {
+            Flee(target.transform.position);
+
+            if (!TargetInRange())
+            {
+                Debug.Log("Target left range");
+                // viewCooldown = false;
+                isFleeing = false;
+            }
         }
     }
 
@@ -65,7 +104,6 @@ public class Boid_script : MonoBehaviour
         }
         else
         {
-            Debug.Log("Location was out of bounds- rerouting!");
             agent.destination = SetDestinationBehind(); 
         }
     } // End of Seek Method
@@ -113,60 +151,116 @@ public class Boid_script : MonoBehaviour
     }
 
 
-    // ============================================================
-    //                           Boid Rules 
-    // ============================================================
-
-    void ApplyRules1() 
+    void Flee(Vector3 location)
     {
-        GameObject[] gos; 
-        gos = FlockManager.FM.allAnimals; 
-        
-        int groupSize = 10;
-        Vector3 vcentre = Vector3.zero; // average centre of group 
-        Vector3 vavoid = Vector3.zero; // avoid others 
-        float gSpeed = 0.01f;
-        float nDistance; 
+        Debug.Log("Running away!");
+        Vector3 fleeVector = location - this.transform.position;
+        Vector3 fleeLocation = this.transform.position - fleeVector;
 
-        foreach(GameObject go in gos)
+        NavMeshHit navHit;
+
+        // Attempt to find a valid position directly opposite to the target location
+        if (NavMesh.SamplePosition(fleeLocation, out navHit, 1.0f, NavMesh.AllAreas))
         {
-            if (go != this.gameObject)
-            { 
-                nDistance = Vector3.Distance(go.transform.position, this.transform.position);
-                if (nDistance <= FlockManager.FM.neighbourDistance)
+            // Valid position found, set as the destination
+            agent.destination = navHit.position;
+        }
+        else
+        {
+            // Directions to veer left and right from the original flee vector
+            Vector3 leftDirection = Quaternion.Euler(0, -60, 0) * fleeVector;
+            Vector3 rightDirection = Quaternion.Euler(0, 60, 0) * fleeVector;
+
+            // Attempt to find a valid position by veering left
+            Vector3 leftFleeLocation = this.transform.position - leftDirection;
+            if (NavMesh.SamplePosition(leftFleeLocation, out navHit, 1.0f, NavMesh.AllAreas))
+            {
+                agent.destination = navHit.position;
+            }
+            // Attempt to find a valid position by veering right
+            else
+            {
+                Vector3 rightFleeLocation = this.transform.position - rightDirection;
+                if (NavMesh.SamplePosition(rightFleeLocation, out navHit, 1.0f, NavMesh.AllAreas))
                 {
-                    vcentre += go.transform.position;
-                    groupSize++; 
+                    agent.destination = navHit.position;
+                }
+                else
+                {
+                    // Optionally, you can add further logic here if needed
+                    // For example, setting a default fallback destination
+                    agent.destination = this.transform.position + fleeVector.normalized * 5f; // Move away a little
+                }
+            }
+        }
+    }
 
-                    if ( nDistance < checkRange) 
-                    {
-                        vavoid = vavoid +(this.transform.position - go.transform.position);
-                    } 
 
-                    Boid_script anotherFlock = go.GetComponent<Boid_script>();
-                    gSpeed = gSpeed + anotherFlock.speed;
+
+
+
+
+    // ============================================================
+    //                       Vision Methods
+    // ============================================================
+
+    bool CanSeeTarget()
+    {
+        RaycastHit raycastInfo;
+
+        // Calculate the direction from the agent to the target
+        Vector3 rayToTarget = target.transform.position - this.transform.position;
+
+
+        // Check the distance to the target
+        if (TargetInRange())
+        {
+            // Calculate the angle between the agent's forward direction and the direction to the target
+            float lookAngle = Vector3.Angle(this.transform.forward, rayToTarget);
+
+            // Check if the target is within the field of view and if the raycast hits the target
+            if ((Mathf.Abs(lookAngle) <= FlockManager.FM.viewAngle) && Physics.Raycast(this.transform.position, rayToTarget, out raycastInfo))
+            {
+                
+                if (raycastInfo.transform.gameObject.tag == "Predator")
+                {
+                    Debug.Log("Can SEE target");
+                    return true;
                 }
             }
         }
 
-        if ( groupSize > 0)
-        {
-            vcentre = vcentre/groupSize + this.transform.position;
-            speed = gSpeed/groupSize; 
-            if(speed > FlockManager.FM.maxSpeed)
-            {
-                speed = FlockManager.FM.maxSpeed;
-            }
-
-            Vector3 direction = (vcentre + vavoid) - transform.position; 
-            if(direction!= Vector3.zero)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation,
-                                        Quaternion.LookRotation(direction), 
-                                        FlockManager.FM.rotationSpeed * Time.deltaTime);
-            }
-        }
+        return false;
     }
+
+    bool TargetInRange() 
+    {
+        RaycastHit raycastInfo;
+
+        // Calculate the direction from the agent to the target
+        Vector3 rayToTarget = target.transform.position - this.transform.position;
+
+        Debug.Log("Target location: " + target.transform.position + "    Distance to target = " + rayToTarget.magnitude);
+
+        // Check the distance to the target
+        if (rayToTarget.magnitude <= FlockManager.FM.viewRange)
+        {
+            Debug.Log("Target in range!"); 
+            return true;
+        }
+
+        return false; 
+    }
+
+    void ViewBehaviourCooldown() 
+    {
+        Debug.Log("Stopped running");
+        viewCooldown = false;
+    }
+
+    // ============================================================
+    //                           Boid Rules 
+    // ============================================================
 
     void ApplyRules()
     {

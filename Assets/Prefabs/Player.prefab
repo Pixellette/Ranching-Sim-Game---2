@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2255687414505825685}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Player
+  m_TagString: Predator
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
