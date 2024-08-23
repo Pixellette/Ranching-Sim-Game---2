@@ -28,8 +28,11 @@ public class FlockManager : MonoBehaviour
         [Range(1.0f, 10.0f)]
         public float neighbourDistance;
         public float aheadDistance = 5;
-        public float edgeThreshold = 5;
-        public float pushBackDistance = 5;
+        
+        [Range(1,100)]
+        public int flockingChance;
+        // public float edgeThreshold = 5;
+        // public float pushBackDistance = 5;
 
     [Header ("View Settings")]
         [Range(30.0f, 90.0f)]

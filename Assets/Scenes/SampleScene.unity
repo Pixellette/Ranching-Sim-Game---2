@@ -2540,7 +2540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animalPrefab: {fileID: 7383211971128209554, guid: 84c6787f1ff710f4581e3ec2a4d4f3ce, type: 3}
-  numAnimals: 150
+  numAnimals: 500
   allAnimals: []
   moveLimits: {x: 5, y: 5, z: 5}
   spawnRange: 90
@@ -2550,8 +2550,7 @@ MonoBehaviour:
   rotationSpeed: 0
   neighbourDistance: 10
   aheadDistance: 5
-  edgeThreshold: 5
-  pushBackDistance: 5
+  flockingChance: 60
   viewAngle: 60
   viewRange: 30
   senseRange: 5

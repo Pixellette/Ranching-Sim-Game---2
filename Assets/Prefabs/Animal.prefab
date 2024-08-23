@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4375214644299336893}
   - component: {fileID: 8140939110309455804}
   - component: {fileID: 266959901311951666}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Animal
   m_TagString: animal
   m_Icon: {fileID: 0}
@@ -122,9 +122,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 480779901418115153, guid: 5743f87e038f60d438d308b3fd1c0128, type: 3}
+  boidLayer:
+    serializedVersion: 2
+    m_Bits: 0
   behaviorOnCooldown: 0
   viewCooldown: 0
   isFleeing: 0
+  isWandering: 0
+  isFlocking: 0
+  minWait: 0
+  maxWait: 3
   wanderRadius: 20
   wanderDistance: 20
   wanderJitter: 3
@@ -132,6 +139,7 @@ MonoBehaviour:
   speed: 0
   turning: 0
   checkRange: 5
+  globalGroupSize: 0
 --- !u!195 &266959901311951666
 NavMeshAgent:
   m_ObjectHideFlags: 0

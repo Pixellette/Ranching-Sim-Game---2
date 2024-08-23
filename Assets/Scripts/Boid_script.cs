@@ -10,10 +10,22 @@ public class Boid_script : MonoBehaviour
     public GameObject target;  // find the Target entity
     Drive ds;
 
+    public LayerMask boidLayer; // DEBUG 
+    public LayerMask nonBoidLayer;
+
     [SerializeField] bool behaviorOnCooldown = false;
     [SerializeField] bool viewCooldown = false; 
     
     [SerializeField] bool isFleeing = false;
+    [SerializeField] bool isWandering = false;
+    [SerializeField] bool isFlocking = false;
+
+    [Header ("Behaviour settings")]
+        [Range(1, 5)]
+        public int minWait;
+
+        [Range(1, 10)]
+        public int maxWait;
 
 
     [Header ("Wander Settings")]
@@ -22,7 +34,7 @@ public class Boid_script : MonoBehaviour
         [SerializeField] float wanderJitter = 1; 
         [SerializeField] Vector3 wanderTarget = Vector3.zero; // cannot be local as needs to remember between calls
 
-    [Header ("Boid Rule Settings")]
+    [Header ("Flocking Settings")]
         [SerializeField] float speed; 
         [SerializeField] bool turning = false; 
         [SerializeField] float checkRange = 5.0f;
@@ -36,6 +48,9 @@ public class Boid_script : MonoBehaviour
 
         speed = Random.Range(FlockManager.FM.minSpeed, FlockManager.FM.maxSpeed);
         target = GameObject.FindWithTag("Predator");
+
+        boidLayer = LayerMask.GetMask("Boid");
+        nonBoidLayer = ~boidLayer; 
     }
 
     // Update is called once per frame
@@ -56,11 +71,15 @@ public class Boid_script : MonoBehaviour
                 Flee(target.transform.position);
                 viewCooldown = true; 
                 isFleeing = true;
+                isFlocking = false;
+                isWandering = false;
                 Invoke("ViewBehaviourCooldown", 5);
             }
             else if (isFleeing && (TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange)))
             {
                 Flee(target.transform.position);
+                isFlocking = false;
+                isWandering = false;
             }
             else if (isFleeing && (!TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange)))
             {
@@ -73,13 +92,17 @@ public class Boid_script : MonoBehaviour
                 {
                     // if(Random.Range(0, 100) < 10)
                     // {
-                        if(Random.Range(0, 100) < 40){
-                            ApplyRules();
+                        if(Random.Range(0, 100) < FlockManager.FM.flockingChance){
+                            CheckForNearbyBoids();
+                            isFlocking = true;
+                            isWandering = false;
                         }
                         else { 
                             Wander();
+                            isWandering = true; 
+                            isFlocking = false; 
                         }
-                        int cooldownTime = Random.Range(3, 7);
+                        int cooldownTime = Random.Range(minWait, maxWait);
                         behaviorOnCooldown = true; 
                         Invoke("BehavoiurCooldown", cooldownTime);
                     // }
@@ -98,6 +121,8 @@ public class Boid_script : MonoBehaviour
                 isFleeing = false;
             }
         }
+
+        // CheckForNearbyBoids();
     }
 
 
@@ -200,7 +225,7 @@ public class Boid_script : MonoBehaviour
 
     bool TargetInRange(float range) 
     {
-        RaycastHit raycastInfo;
+        // RaycastHit raycastInfo;
 
         // Calculate the direction from the agent to the target
         Vector3 rayToTarget = target.transform.position - this.transform.position;
@@ -280,8 +305,78 @@ public class Boid_script : MonoBehaviour
                 Seek(transform.position + direction * FlockManager.FM.neighbourDistance);
             }
         }
+
+        // send groupsize to Global for behaviour deciding behaviour
     }
 
+
+    void ApplyBoidRules()
+    {
+
+    }
+
+    void CheckForNearbyBoids()
+    {
+        int groupSize = 0;
+        Vector3 separation = Vector3.zero;
+        Vector3 alignment = Vector3.zero;
+        Vector3 cohesion = Vector3.zero;
+
+        // Create a sphere at the boid's position and detect other boids within the detection radius
+        Collider[] nearbyBoids = Physics.OverlapSphere(transform.position, 10, boidLayer);
+
+        foreach (Collider boidCollider in nearbyBoids)
+        {
+            if (boidCollider.gameObject != this.gameObject) // Ignore self
+            {
+                // Perform a raycast to check if there is an obstacle between the current boid and the nearby boid
+                Vector3 directionToBoid = (boidCollider.transform.position - transform.position).normalized;
+                float distanceToBoid = Vector3.Distance(transform.position, boidCollider.transform.position);
+
+                if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, nonBoidLayer))
+                {
+                    // No obstacle in the way, proceed with calculations
+
+                    Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
+                    if (nearbyBoid != null)
+                    {
+                        // Separation: Steer away from nearby boids that are too close
+                        Vector3 toBoid = transform.position - nearbyBoid.transform.position;
+                        separation += toBoid / toBoid.sqrMagnitude; // Inversely proportional to distance
+
+                        // Alignment: Average the direction of nearby boids
+                        alignment += nearbyBoid.transform.forward;
+
+                        // Cohesion: Move towards the average position of the group
+                        cohesion += nearbyBoid.transform.position;
+
+                        groupSize++;
+                    }
+                }
+            }
+        }
+
+        if (groupSize > 0)
+        {
+            // Average the alignment direction
+            alignment /= groupSize;
+
+            // Calculate the center of the group (cohesion)
+            cohesion /= groupSize;
+            Vector3 toCohesion = (cohesion - transform.position).normalized;
+
+            // Combine the three behaviors with weighting factors
+            Vector3 moveDirection = (separation * 1.5f) + (alignment * 1.0f) + (toCohesion * 1.0f);
+
+            // Normalize the result to get a final direction
+            Vector3 newDestination = transform.position + moveDirection.normalized * 10f;
+
+            // Seek the new destination
+            Seek(newDestination);
+        }
+
+        // Debug.Log("Number of nearby boids: " + groupSize);
+    }
 
 
 }

@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "My Boids attempt 1.sln"
+    "dotnet.defaultSolution": "My Boids attempt - 2.sln"
 }
