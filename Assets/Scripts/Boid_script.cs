@@ -10,6 +10,7 @@ public class Boid_script : MonoBehaviour
     public GameObject target;  // find the Target entity
     Drive ds;
 
+    [SerializeField] bool behaviorOnCooldown = false;
     [SerializeField] bool viewCooldown = false; 
     
     [SerializeField] bool isFleeing = false;
@@ -68,15 +69,23 @@ public class Boid_script : MonoBehaviour
             }
             else 
             {
-                if(Random.Range(0, 100) < 10)
+                if (!behaviorOnCooldown)
                 {
-                    if(Random.Range(0, 100) < 30){
-                        ApplyRules();
-                    }
-                    else { 
-                        Wander();
-                    }
+                    // if(Random.Range(0, 100) < 10)
+                    // {
+                        if(Random.Range(0, 100) < 40){
+                            ApplyRules();
+                        }
+                        else { 
+                            Wander();
+                        }
+                        int cooldownTime = Random.Range(3, 7);
+                        behaviorOnCooldown = true; 
+                        Invoke("BehavoiurCooldown", cooldownTime);
+                    // }
+                    
                 }
+                
             }
         }
         else {
@@ -149,6 +158,11 @@ public class Boid_script : MonoBehaviour
         Seek(targetWorld);
     }
 
+
+    void BehavoiurCooldown()
+    {
+        behaviorOnCooldown = false;
+    }
 
 
     // ============================================================
