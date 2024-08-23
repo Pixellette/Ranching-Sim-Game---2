@@ -120,26 +120,13 @@ public class Boid_script : MonoBehaviour
     } // End of Seek Method
 
 
-    Vector3 SetDestinationBehind()
+        void Flee(Vector3 location)
     {
-        // Get the current forward direction of the boid
-        Vector3 currentForward = transform.forward;
+        // Debug.Log("Running away!");
+        Vector3 fleeVector = location - this.transform.position;
+        Vector3 fleeLocation = this.transform.position - fleeVector;
 
-        // Calculate the opposite direction (behind the boid)
-        Vector3 oppositeDirection = -currentForward;
-
-        // Randomly rotate to within 60 degrees of behind 
-        float angle = Random.Range(-30.0f, 30.0f);
-        Quaternion rotation = Quaternion.Euler(0, angle, 0); 
-
-        // Apply the rotation to the opposite direction 
-        Vector3 newDirection = rotation * oppositeDirection;
-
-        // Set a destination along this new direction
-        float distance = 10.0f; 
-        Vector3 destination = transform.position + newDirection * distance; 
-
-        return destination;
+        Seek(fleeLocation);
     }
 
 
@@ -161,38 +148,6 @@ public class Boid_script : MonoBehaviour
         // Finally Seek the target location
         Seek(targetWorld);
     }
-
-
-    void Flee(Vector3 location)
-    {
-        // Debug.Log("Running away!");
-        Vector3 fleeVector = location - this.transform.position;
-        Vector3 fleeLocation = this.transform.position - fleeVector;
-
-        // agent.SetDestination(fleeLocation);
-
-        RaycastHit hit;
-        Vector3 direction = (fleeLocation - agent.transform.position).normalized;
-        float distance = Vector3.Distance(agent.transform.position, fleeLocation);
-
-        // Cast a ray to detect the obstacle in the path
-        if (Physics.Raycast(agent.transform.position, direction, out hit, distance))
-        {
-            // Calculate the closest point on the obstacle's surface to the agent
-            Vector3 closestPoint = hit.point - direction * agent.radius;
-
-            // Move to the closest point on the obstacle edge
-            agent.SetDestination(closestPoint);
-        }
-        else
-        {
-            // No obstacle, move directly to the target location
-            agent.SetDestination(fleeLocation);
-        }
-    }
-
-
-
 
 
 
