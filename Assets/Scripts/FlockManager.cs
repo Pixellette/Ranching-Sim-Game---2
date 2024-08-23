@@ -38,6 +38,9 @@ public class FlockManager : MonoBehaviour
         [Range(30.0f, 90.0f)]
         public float viewRange;
 
+        [Range(1.0f, 30.0f)]
+        public float senseRange; // viewing - just being aware of
+
     // Start is called before the first frame update
     void Start()
     {

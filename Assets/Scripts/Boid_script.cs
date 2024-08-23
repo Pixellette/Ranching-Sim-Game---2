@@ -11,6 +11,7 @@ public class Boid_script : MonoBehaviour
     Drive ds;
 
     [SerializeField] bool viewCooldown = false; 
+    
     [SerializeField] bool isFleeing = false;
 
 
@@ -46,19 +47,23 @@ public class Boid_script : MonoBehaviour
                 Flee(target.transform.position);
                 viewCooldown = true; 
                 isFleeing = true;
-
-                // if (!TargetInRange())
-                // {
                 Invoke("ViewBehaviourCooldown", 5);
-                // }
-                
             }
-            else if (isFleeing && TargetInRange())
+            else if (TargetInRange(FlockManager.FM.senseRange))
+            {
+                // Debug.Log("Can SENSE target!");
+                Flee(target.transform.position);
+                viewCooldown = true; 
+                isFleeing = true;
+                Invoke("ViewBehaviourCooldown", 5);
+            }
+            else if (isFleeing && (TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange)))
             {
                 Flee(target.transform.position);
             }
-            else if (isFleeing && !TargetInRange())
+            else if (isFleeing && (!TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange)))
             {
+                // Debug.Log("Target left range");
                 isFleeing = false;
             }
             else 
@@ -77,9 +82,9 @@ public class Boid_script : MonoBehaviour
         else {
             Flee(target.transform.position);
 
-            if (!TargetInRange())
+            if (!TargetInRange(FlockManager.FM.viewRange))
             {
-                Debug.Log("Target left range");
+                // Debug.Log("Target left view range");
                 // viewCooldown = false;
                 isFleeing = false;
             }
@@ -94,17 +99,23 @@ public class Boid_script : MonoBehaviour
 
     void Seek(Vector3 location)
     {
-        NavMeshHit navHit;
+        RaycastHit hit;
+        Vector3 direction = (location - agent.transform.position).normalized;
+        float distance = Vector3.Distance(agent.transform.position, location);
 
-        // Check if the target location is on the NavMesh within a given distance (1.0f here).
-        if (NavMesh.SamplePosition(location, out navHit, 1.0f, NavMesh.AllAreas))
+        // Cast a ray to detect the obstacle in the path
+        if (Physics.Raycast(agent.transform.position, direction, out hit, distance))
         {
-            // If valid, set the agent's destination to this position
-            agent.destination = navHit.position;
+            // Calculate the closest point on the obstacle's surface to the agent
+            Vector3 closestPoint = hit.point - direction * agent.radius;
+
+            // Move to the closest point on the obstacle edge
+            agent.SetDestination(closestPoint);
         }
         else
         {
-            agent.destination = SetDestinationBehind(); 
+            // No obstacle, move directly to the target location
+            agent.SetDestination(location);
         }
     } // End of Seek Method
 
@@ -134,6 +145,7 @@ public class Boid_script : MonoBehaviour
 
     void Wander()
     {
+        // Debug.Log("Wandering...");
         wanderTarget += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f) * wanderJitter,   // X
                                     0,                                                      // Y
                                     UnityEngine.Random.Range(-1.0f, 1.0f) * wanderJitter);  // Z
@@ -153,45 +165,29 @@ public class Boid_script : MonoBehaviour
 
     void Flee(Vector3 location)
     {
-        Debug.Log("Running away!");
+        // Debug.Log("Running away!");
         Vector3 fleeVector = location - this.transform.position;
         Vector3 fleeLocation = this.transform.position - fleeVector;
 
-        NavMeshHit navHit;
+        // agent.SetDestination(fleeLocation);
 
-        // Attempt to find a valid position directly opposite to the target location
-        if (NavMesh.SamplePosition(fleeLocation, out navHit, 1.0f, NavMesh.AllAreas))
+        RaycastHit hit;
+        Vector3 direction = (fleeLocation - agent.transform.position).normalized;
+        float distance = Vector3.Distance(agent.transform.position, fleeLocation);
+
+        // Cast a ray to detect the obstacle in the path
+        if (Physics.Raycast(agent.transform.position, direction, out hit, distance))
         {
-            // Valid position found, set as the destination
-            agent.destination = navHit.position;
+            // Calculate the closest point on the obstacle's surface to the agent
+            Vector3 closestPoint = hit.point - direction * agent.radius;
+
+            // Move to the closest point on the obstacle edge
+            agent.SetDestination(closestPoint);
         }
         else
         {
-            // Directions to veer left and right from the original flee vector
-            Vector3 leftDirection = Quaternion.Euler(0, -60, 0) * fleeVector;
-            Vector3 rightDirection = Quaternion.Euler(0, 60, 0) * fleeVector;
-
-            // Attempt to find a valid position by veering left
-            Vector3 leftFleeLocation = this.transform.position - leftDirection;
-            if (NavMesh.SamplePosition(leftFleeLocation, out navHit, 1.0f, NavMesh.AllAreas))
-            {
-                agent.destination = navHit.position;
-            }
-            // Attempt to find a valid position by veering right
-            else
-            {
-                Vector3 rightFleeLocation = this.transform.position - rightDirection;
-                if (NavMesh.SamplePosition(rightFleeLocation, out navHit, 1.0f, NavMesh.AllAreas))
-                {
-                    agent.destination = navHit.position;
-                }
-                else
-                {
-                    // Optionally, you can add further logic here if needed
-                    // For example, setting a default fallback destination
-                    agent.destination = this.transform.position + fleeVector.normalized * 5f; // Move away a little
-                }
-            }
+            // No obstacle, move directly to the target location
+            agent.SetDestination(fleeLocation);
         }
     }
 
@@ -213,7 +209,7 @@ public class Boid_script : MonoBehaviour
 
 
         // Check the distance to the target
-        if (TargetInRange())
+        if (TargetInRange(FlockManager.FM.viewRange))
         {
             // Calculate the angle between the agent's forward direction and the direction to the target
             float lookAngle = Vector3.Angle(this.transform.forward, rayToTarget);
@@ -224,7 +220,7 @@ public class Boid_script : MonoBehaviour
                 
                 if (raycastInfo.transform.gameObject.tag == "Predator")
                 {
-                    Debug.Log("Can SEE target");
+                    // Debug.Log("Can SEE target");
                     return true;
                 }
             }
@@ -233,19 +229,19 @@ public class Boid_script : MonoBehaviour
         return false;
     }
 
-    bool TargetInRange() 
+    bool TargetInRange(float range) 
     {
         RaycastHit raycastInfo;
 
         // Calculate the direction from the agent to the target
         Vector3 rayToTarget = target.transform.position - this.transform.position;
 
-        Debug.Log("Target location: " + target.transform.position + "    Distance to target = " + rayToTarget.magnitude);
+        // Debug.Log("Target location: " + target.transform.position + "    Distance to target = " + rayToTarget.magnitude);
 
         // Check the distance to the target
-        if (rayToTarget.magnitude <= FlockManager.FM.viewRange)
+        if (rayToTarget.magnitude <= range)
         {
-            Debug.Log("Target in range!"); 
+            // Debug.Log("Target in range of range: " + range); 
             return true;
         }
 
@@ -254,7 +250,7 @@ public class Boid_script : MonoBehaviour
 
     void ViewBehaviourCooldown() 
     {
-        Debug.Log("Stopped running");
+        // Debug.Log("Run timer stopped");
         viewCooldown = false;
     }
 
@@ -264,6 +260,7 @@ public class Boid_script : MonoBehaviour
 
     void ApplyRules()
     {
+        // Debug.Log("Applying boid rules... ");
         GameObject[] gos = FlockManager.FM.allAnimals;
 
         Vector3 vcentre = Vector3.zero;  // Average center of group

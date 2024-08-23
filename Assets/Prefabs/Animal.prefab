@@ -122,8 +122,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 480779901418115153, guid: 5743f87e038f60d438d308b3fd1c0128, type: 3}
-  wanderRadius: 20
-  wanderDistance: 20
+  viewCooldown: 0
+  isFleeing: 0
+  wanderRadius: 10
+  wanderDistance: 10
   wanderJitter: 3
   wanderTarget: {x: 0, y: 0, z: 0}
   speed: 0
