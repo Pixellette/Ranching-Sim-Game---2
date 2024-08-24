@@ -5,36 +5,47 @@ using UnityEngine;
 public class FlockManager : MonoBehaviour
 {
     public static FlockManager FM;
-    public GameObject animalPrefab; 
-    public int numAnimals; 
-    public GameObject[] allAnimals; 
-    public Vector3 moveLimits = new Vector3(100, 0, 100); // TODO: maybe doesn't work with ours???? 
-    public int spawnRange = 100;
 
-    public Vector3 goalPos = Vector3.zero; 
+    [Header ("Spawn Settings ")]
+        public GameObject animalPrefab; 
 
-    [Header ("Speed Settings")]
-        [Range(0.0f, 5.0f)]
-        public float minSpeed;
+        [Range(1,200)]
+        public int spawnRange;
+        public int numAnimals; 
+        public GameObject[] allAnimals; 
 
-        [Range(0.0f, 5.0f)]
-        public float maxSpeed;
+    [Header ("Behaviour Settings")]
+        [Range(1, 5)]
+        public int minWait;
 
-        [Range(1.0f, 5.0f)]
-        public float rotationSpeed;
+        [Range(1, 10)]
+        public int maxWait;
+
+    [Header ("Wander Settings")]
+        [SerializeField] public float wanderRadius = 10;
+        [SerializeField] public float wanderDistance = 20;
+        [SerializeField] public float wanderJitter = 1; 
 
 
-    [Header ("Movement Settings")]
+    [Header ("Flocking Settings")]
         [Range(1.0f, 10.0f)]
         public float neighbourDistance;
         public float aheadDistance = 5;
         
         [Range(1,100)]
         public int flockingChance;
-        // public float edgeThreshold = 5;
-        // public float pushBackDistance = 5;
 
-    [Header ("View Settings")]
+        [Range(0.01f,5.0f)]
+        public float seperationWeight;
+
+        [Range(0.01f,5.0f)]
+        public float alignmentWeight;
+
+        [Range(0.01f,5.0f)]
+        public float cohesionWeight;
+
+
+    [Header ("Animal Awareness Settings")]
         [Range(30.0f, 90.0f)]
         public float viewAngle;
 
@@ -42,9 +53,9 @@ public class FlockManager : MonoBehaviour
         public float viewRange;
 
         [Range(1.0f, 30.0f)]
-        public float senseRange; // viewing - just being aware of
+        public float senseRange; 
 
-    // Start is called before the first frame update
+
     void Start()
     {
         allAnimals = new GameObject[numAnimals];
@@ -60,10 +71,9 @@ public class FlockManager : MonoBehaviour
         }
 
         FM = this;
-        goalPos = this.transform.position;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         

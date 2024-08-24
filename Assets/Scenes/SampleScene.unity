@@ -2540,17 +2540,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animalPrefab: {fileID: 7383211971128209554, guid: 84c6787f1ff710f4581e3ec2a4d4f3ce, type: 3}
+  spawnRange: 90
   numAnimals: 500
   allAnimals: []
-  moveLimits: {x: 5, y: 5, z: 5}
-  spawnRange: 90
-  goalPos: {x: 0, y: 0, z: 0}
-  minSpeed: 0.25
-  maxSpeed: 2
-  rotationSpeed: 0
+  minWait: 0
+  maxWait: 0
+  wanderRadius: 10
+  wanderDistance: 20
+  wanderJitter: 1
   neighbourDistance: 10
   aheadDistance: 5
   flockingChance: 60
+  seperationWeight: 1.5
+  alignmentWeight: 1
+  cohesionWeight: 1
   viewAngle: 60
   viewRange: 30
   senseRange: 5
