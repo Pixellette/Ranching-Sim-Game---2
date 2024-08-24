@@ -24,8 +24,15 @@ public class Boid_script : MonoBehaviour
     [Header ("Wander Settings")]
         [SerializeField] Vector3 wanderTarget = Vector3.zero; // cannot be local as needs to remember between calls
 
+    
+    [Header ("Species")]
+        [SerializeField] bool isCow;
+        [SerializeField] bool isSheep;
 
-    // Start is called before the first frame update
+    // ============================================================
+    //                         Methods 
+    // ============================================================
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -33,9 +40,24 @@ public class Boid_script : MonoBehaviour
 
         boidLayer = LayerMask.GetMask("Boid");
         nonBoidLayer = ~boidLayer; 
+
+
+        if (this.gameObject.CompareTag("Cow"))
+        {
+            isCow = true;
+            isSheep = false;
+        }
+        else if (this.gameObject.CompareTag("Sheep"))
+        {
+            isCow = false;
+            isSheep = true;
+        }
+        else
+        {
+            Debug.LogError("Boid has an unknown tag: " + this.gameObject.name);
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
         Movement();
@@ -235,6 +257,7 @@ public class Boid_script : MonoBehaviour
 
     void ApplyFlockingRules()
     {
+        int totalGroupSize= 0;
         int groupSize = 0;
         Vector3 separation = Vector3.zero;
         Vector3 alignment = Vector3.zero;
@@ -261,13 +284,20 @@ public class Boid_script : MonoBehaviour
                         Vector3 toBoid = transform.position - nearbyBoid.transform.position;
                         separation += toBoid / toBoid.sqrMagnitude; // Inversely proportional to distance
 
-                        // Alignment: Average the direction of nearby boids
-                        alignment += nearbyBoid.transform.forward;
+                        totalGroupSize++;
 
-                        // Cohesion: Move towards the average position of the group
-                        cohesion += nearbyBoid.transform.position;
+                        // Check if the species matches! 
+                        if ((this.isCow && nearbyBoid.isCow) || (this.isSheep && nearbyBoid.isSheep))
+                        {
+                            // Alignment: Average the direction of nearby boids
+                            alignment += nearbyBoid.transform.forward;
 
-                        groupSize++;
+                            // Cohesion: Move towards the average position of the group
+                            cohesion += nearbyBoid.transform.position;
+
+                            // increase species group
+                            groupSize++;
+                        }
                     }
                 }
             }
@@ -292,6 +322,47 @@ public class Boid_script : MonoBehaviour
             Seek(newDestination);
         }
     }
+
+
+    void OnDrawGizmosSelected()
+    {
+
+        if (isFlocking)
+        {
+            // Set the color for the gizmos
+            Gizmos.color = Color.green;
+
+            // Create a sphere to represent the detection radius
+            Gizmos.DrawWireSphere(transform.position, FlockManager.FM.neighbourDistance);
+
+            // Draw lines to each boid being tracked for flocking
+            Collider[] nearbyBoids = Physics.OverlapSphere(transform.position, FlockManager.FM.neighbourDistance, boidLayer);
+
+            foreach (Collider boidCollider in nearbyBoids)
+            {
+                if (boidCollider.gameObject != this.gameObject) // Ignore self
+                {
+                    Vector3 directionToBoid = (boidCollider.transform.position - transform.position).normalized;
+                    float distanceToBoid = Vector3.Distance(transform.position, boidCollider.transform.position);
+
+                    if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, nonBoidLayer))
+                    {
+                        Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
+                        if (nearbyBoid != null)
+                        {
+                            if ((this.isCow && nearbyBoid.isCow) || (this.isSheep && nearbyBoid.isSheep))
+                            {
+                                // Draw a line from the current boid to the nearby boid
+                                Gizmos.DrawLine(transform.position, nearbyBoid.transform.position);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 
 }

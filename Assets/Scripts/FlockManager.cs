@@ -7,12 +7,19 @@ public class FlockManager : MonoBehaviour
     public static FlockManager FM;
 
     [Header ("Spawn Settings ")]
-        public GameObject animalPrefab; 
+        public GameObject sheepPrefab; 
+        [Range(1,200)]
+        public int spawnRangeSheep;
+        public int numSheep; 
+        public GameObject[] allSheep; 
+
+        public GameObject cowPrefab; 
+
 
         [Range(1,200)]
-        public int spawnRange;
-        public int numAnimals; 
-        public GameObject[] allAnimals; 
+        public int spawnRangeCow;
+        public int numCow; 
+        public GameObject[] allCow; 
 
     [Header ("Behaviour Settings")]
         [Range(1, 5)]
@@ -28,7 +35,7 @@ public class FlockManager : MonoBehaviour
 
 
     [Header ("Flocking Settings")]
-        [Range(1.0f, 10.0f)]
+        [Range(1.0f, 30.0f)]
         public float neighbourDistance;
         public float aheadDistance = 5;
         
@@ -58,20 +65,39 @@ public class FlockManager : MonoBehaviour
 
     void Start()
     {
-        allAnimals = new GameObject[numAnimals];
-        for(int i = 0; i < numAnimals; i++)
+        allSheep = new GameObject[numSheep];
+        for (int i = 0; i < numSheep; i++)
         {
-            Vector3 pos = this.transform.position + new Vector3(Random.Range(-spawnRange, spawnRange), 
-                                                                35.3f,
-                                                                Random.Range(-spawnRange, spawnRange));
-            
-            
-            allAnimals[i] = Instantiate(animalPrefab, pos, Quaternion.identity);
+            Vector3 pos = this.transform.position + new Vector3(Random.Range(-spawnRangeSheep, spawnRangeSheep),
+                                                                50f, // Arbitrary high value to start the raycast from above the ground
+                                                                Random.Range(-spawnRangeSheep, spawnRangeSheep));
 
+            if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit))
+            {
+                pos.y = hit.point.y;
+            }
+
+            allSheep[i] = Instantiate(sheepPrefab, pos, Quaternion.identity);
+        }
+
+        allCow = new GameObject[numCow];
+        for (int i = 0; i < numCow; i++)
+        {
+            Vector3 pos = this.transform.position + new Vector3(Random.Range(-spawnRangeCow, spawnRangeCow),
+                                                                50f,
+                                                                Random.Range(-spawnRangeCow, spawnRangeCow));
+
+            if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit))
+            {
+                pos.y = hit.point.y;
+            }
+
+            allCow[i] = Instantiate(cowPrefab, pos, Quaternion.identity);
         }
 
         FM = this;
     }
+
 
 
     void Update()
