@@ -416,7 +416,7 @@ public class Boid_script : MonoBehaviour
 
 
     // ============================================================
-    //                       Grass Methods! 
+    //                       Hunger Methods! 
     // ============================================================
 
     private void UpdateHungerState()
@@ -479,7 +479,20 @@ public class Boid_script : MonoBehaviour
                 Grass grass = grassCollider.GetComponent<Grass>();
                 if (grass != null && grass.IsTallEnough())
                 {
-                    float distance = Vector3.Distance(transform.position, grass.transform.position);
+                    Vector3 directionToGrass = grass.transform.position - transform.position;
+                    float distance = directionToGrass.magnitude;
+
+                    // Perform a raycast to check for obstacles between the Boid and the grass
+                    if (Physics.Raycast(transform.position, directionToGrass.normalized, out RaycastHit hit, distance, nonBoidLayer))
+                    {
+                        // If the raycast hits something that is not the grass, discard this grass
+                        if (hit.collider != grassCollider)
+                        {
+                            continue;
+                        }
+                    }
+
+                    // float distance = Vector3.Distance(transform.position, grass.transform.position);
                     if (distance < closestDistance)
                     {
                         closestDistance = distance;

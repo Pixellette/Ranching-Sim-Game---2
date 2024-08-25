@@ -12,7 +12,7 @@ public class Grass : MonoBehaviour
 
     void Start()
     {
-        currentHeight = minHeight;
+        currentHeight = Random.Range(minHeight, maxHeight);
         transform.localScale = new Vector3(1, currentHeight, 1);
     }
 

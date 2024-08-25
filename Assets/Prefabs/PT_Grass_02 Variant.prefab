@@ -102,7 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHeight: 2
   minHeight: 0.1
-  growthRate: 0.1
+  growthRate: 0.01
   hungerThreshold: 0.5
   currentHeight: 0
 --- !u!135 &-3124226598741516139
