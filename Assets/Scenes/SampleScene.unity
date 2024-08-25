@@ -2539,18 +2539,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f286d4b87ff35b44faaad771d6a03590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animalPrefab: {fileID: 7383211971128209554, guid: 84c6787f1ff710f4581e3ec2a4d4f3ce, type: 3}
-  spawnRange: 90
-  numAnimals: 500
-  allAnimals: []
+  sheepPrefab: {fileID: 7383211971128209554, guid: 84c6787f1ff710f4581e3ec2a4d4f3ce, type: 3}
+  spawnRangeSheep: 31
+  numSheep: 20
+  allSheep: []
+  cowPrefab: {fileID: 8093179604966282698, guid: 6be0c29aed5856541a4d09db4efed7e8, type: 3}
+  spawnRangeCow: 60
+  numCow: 0
+  allCow: []
   minWait: 0
-  maxWait: 0
+  maxWait: 3
   wanderRadius: 10
   wanderDistance: 20
   wanderJitter: 1
-  neighbourDistance: 10
+  neighbourDistance: 15
   aheadDistance: 5
-  flockingChance: 60
+  flockingChance: 70
   seperationWeight: 1.5
   alignmentWeight: 1
   cohesionWeight: 1
@@ -3802,6 +3806,54 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a364ddeffc797439f2a5721660b0e6, type: 3}
+--- !u!1 &1500853947
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1500853949}
+  - component: {fileID: 1500853948}
+  m_Layer: 0
+  m_Name: GrassSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1500853948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500853947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99ebc74d6b8cc574f85ba39a598fb5b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grassPrefab: {fileID: 5194954685591448675, guid: 8f4e70f10936ddf46b347e4f8a43538c, type: 3}
+  numberOfGrass: 500
+  terrain: {fileID: 1970145886}
+  grassOffsetHeight: 0.01
+--- !u!4 &1500853949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500853947}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 126.78329, y: 0.80070347, z: 120.22627}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1506723298
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5534,3 +5586,4 @@ SceneRoots:
   - {fileID: 1066225447}
   - {fileID: 380253538632880135}
   - {fileID: 898819301}
+  - {fileID: 1500853949}

@@ -6,6 +6,10 @@ TagManager:
   tags:
   - animal
   - Predator
+  - Undefined
+  - Sheep
+  - Cow
+  - Grass
   layers:
   - Default
   - TransparentFX
@@ -16,7 +20,7 @@ TagManager:
   - 
   - 
   - Boid
-  - 
+  - Grass
   - 
   - 
   - 

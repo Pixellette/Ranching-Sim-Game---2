@@ -136,6 +136,19 @@ MonoBehaviour:
   wanderTarget: {x: 0, y: 0, z: 0}
   isCow: 0
   isSheep: 1
+  isHungry: 0
+  currentHunger: 0
+  displayedHunger: 0
+  maxHunger: 100
+  minHunger: 0
+  hungerRate: 2
+  hungryThreshold: 50
+  eatAmount: 0.5
+  searchRadius: 10
+  reqProxToGrass: 3
+  grassLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!195 &266959901311951666
 NavMeshAgent:
   m_ObjectHideFlags: 0

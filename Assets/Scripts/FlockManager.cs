@@ -65,11 +65,16 @@ public class FlockManager : MonoBehaviour
 
     void Start()
     {
+        // Create parent GameObjects for sheep and cows
+        GameObject sheepParent = new GameObject("SheepParent");
+        GameObject cowParent = new GameObject("CowParent");
+
+        // Create and position all sheep
         allSheep = new GameObject[numSheep];
         for (int i = 0; i < numSheep; i++)
         {
             Vector3 pos = this.transform.position + new Vector3(Random.Range(-spawnRangeSheep, spawnRangeSheep),
-                                                                50f, // Arbitrary high value to start the raycast from above the ground
+                                                                50f, 
                                                                 Random.Range(-spawnRangeSheep, spawnRangeSheep));
 
             if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit))
@@ -78,8 +83,10 @@ public class FlockManager : MonoBehaviour
             }
 
             allSheep[i] = Instantiate(sheepPrefab, pos, Quaternion.identity);
+            allSheep[i].transform.parent = sheepParent.transform; // Set parent
         }
 
+        // Create and position all cows
         allCow = new GameObject[numCow];
         for (int i = 0; i < numCow; i++)
         {
@@ -93,10 +100,12 @@ public class FlockManager : MonoBehaviour
             }
 
             allCow[i] = Instantiate(cowPrefab, pos, Quaternion.identity);
+            allCow[i].transform.parent = cowParent.transform; // Set parent
         }
 
         FM = this;
     }
+
 
 
 

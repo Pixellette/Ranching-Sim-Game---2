@@ -29,6 +29,26 @@ public class Boid_script : MonoBehaviour
         [SerializeField] bool isCow;
         [SerializeField] bool isSheep;
 
+
+    [Header ("Hunger")]
+        [SerializeField] bool isHungry = false;
+        // public float hunger = 1f; // Boid's hunger level
+        [SerializeField] float currentHunger; 
+        [SerializeField] int displayedHunger;
+        [SerializeField] float maxHunger = 100f;
+        [SerializeField] float minHunger = 0f;
+        public float hungerRate = 2f; // Rate at which hunger decreases
+
+        [SerializeField] int hungryThreshold = 50; 
+        public float eatAmount = 0.5f; // Amount of grass to eat
+        [SerializeField] float searchRadius = 30f; // Radius to search for grass
+        [SerializeField] float reqProxToGrass = 3.0f;
+
+        public LayerMask grassLayer; // Layer mask to identify grass
+        private Grass targetGrass; // Current target grass for the boid
+        
+
+
     // ============================================================
     //                         Methods 
     // ============================================================
@@ -40,6 +60,9 @@ public class Boid_script : MonoBehaviour
 
         boidLayer = LayerMask.GetMask("Boid");
         nonBoidLayer = ~boidLayer; 
+
+        currentHunger = 99;
+        displayedHunger = Mathf.RoundToInt(currentHunger);
 
 
         if (this.gameObject.CompareTag("Cow"))
@@ -60,7 +83,9 @@ public class Boid_script : MonoBehaviour
 
     void Update()
     {
-        Movement();
+        CheckHunger();
+
+        // Movement();
     }
 
 
@@ -324,6 +349,117 @@ public class Boid_script : MonoBehaviour
     }
 
 
+
+    // ============================================================
+    //                       Grass Methods! 
+    // ============================================================
+
+    private void CheckHunger()
+    {
+        currentHunger -= hungerRate * Time.deltaTime; // Decrease hunger over time
+
+        // Ensure hunger stays within bounds and tick down nicely
+        currentHunger = Mathf.Clamp(currentHunger, minHunger, maxHunger);
+
+        // Display the hunger value as an integer for better readability
+        displayedHunger = Mathf.RoundToInt(currentHunger);
+
+        if (currentHunger <= hungryThreshold)
+        {
+            Debug.Log("Hunger low");
+            isHungry = true;
+
+            // Check if targetGrass is invalid (null, too short, or out of range)
+            if (targetGrass == null || !targetGrass.IsTallEnough() || Vector3.Distance(transform.position, targetGrass.transform.position) > searchRadius)
+            {
+                Debug.Log("Looking for grass...");
+                FindAndEatGrass(); // Look for grass when hungry and current target is invalid
+            }
+            else
+            {
+                Debug.Log("Heading to grass");
+                // Use Seek method to move towards the current target grass
+                Seek(targetGrass.transform.position);
+                CheckArrival(); // Check if the boid has arrived at the grass
+            }
+        }
+        else 
+        {
+            isHungry = false;
+        }
+    }
+
+
+
+    private void FindAndEatGrass()
+    {
+        // Use OverlapSphere to find nearby grass
+        Collider[] grassColliders = Physics.OverlapSphere(transform.position, searchRadius, grassLayer);
+
+        if (grassColliders.Length > 0)
+        {
+            // Find the closest grass object that is tall enough
+            Collider closestGrass = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (Collider grassCollider in grassColliders)
+            {
+                Grass grass = grassCollider.GetComponent<Grass>();
+                if (grass != null && grass.IsTallEnough())
+                {
+                    float distance = Vector3.Distance(transform.position, grass.transform.position);
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestGrass = grassCollider;
+                    }
+                }
+            }
+
+            if (closestGrass != null)
+            {
+                targetGrass = closestGrass.GetComponent<Grass>();
+                Debug.Log("New grass target found: " + targetGrass.name);
+                // Seek will be called in CheckHunger after setting targetGrass
+            }
+            else
+            {
+                Debug.Log("No suitable grass found within search radius.");
+                targetGrass = null; // Reset target if no suitable grass is found
+            }
+        }
+        else
+        {
+            Debug.Log("No grass found within search radius.");
+            targetGrass = null; // Reset target if no grass is found
+        }
+    }
+
+
+    private void CheckArrival()
+    {
+        if (targetGrass == null) return; // Early exit if no valid targetGrass
+
+        Debug.Log("Checking proximity to grass...");
+        // Check if the boid has reached the grass
+        if (Vector3.Distance(transform.position, targetGrass.transform.position) < reqProxToGrass)
+        {
+            Debug.Log("Reached grass!");
+            targetGrass.CutGrass(eatAmount); // Eat the grass
+            currentHunger += 10; // Reset hunger
+            currentHunger = Mathf.Clamp(currentHunger, minHunger, maxHunger); // Clamp after eating
+            targetGrass = null; // Clear the target after eating
+        }
+    }
+
+
+
+
+
+    // ============================================================
+    //                       DEBUGGING METHODS
+    // ============================================================
+
     void OnDrawGizmosSelected()
     {
 
@@ -359,6 +495,24 @@ public class Boid_script : MonoBehaviour
                         }
                     }
                 }
+            }
+        }
+
+        if(isHungry)
+        {
+            // Set the color for the gizmos
+            Gizmos.color = Color.cyan;
+
+            // Create a sphere to represent the detection radius
+            Gizmos.DrawWireSphere(transform.position, FlockManager.FM.neighbourDistance);
+
+            // Draw lines to each nearby grass
+            Collider[] nearbyGrass = Physics.OverlapSphere(transform.position, FlockManager.FM.neighbourDistance, grassLayer);
+
+            foreach (Collider grassCollider in nearbyGrass)
+            {
+                // Draw a line from the current boid to the grass
+                Gizmos.DrawLine(transform.position, grassCollider.transform.position);
             }
         }
     }
