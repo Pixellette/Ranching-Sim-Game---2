@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f155ac63caf514545864b8c96fd13284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 480779901418115153, guid: 5743f87e038f60d438d308b3fd1c0128, type: 3}
   boidLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -131,9 +131,31 @@ MonoBehaviour:
   isFleeing: 0
   isWandering: 0
   isFlocking: 0
+  isEating: 0
   wanderTarget: {x: 0, y: 0, z: 0}
   isCow: 1
-  isSheep: 1
+  isSheep: 0
+  currentHunger: 0
+  displayedHunger: 0
+  maxHunger: 100
+  minHunger: 0
+  hungerRate: 0.5
+  eatAmount: 1
+  hungerAdded: 30
+  isPeckish: 0
+  isHungry: 0
+  isStarving: 0
+  peckishThreshold: 80
+  hungryThreshold: 50
+  starvingThreshold: 20
+  peckishChance: 10
+  hungryChance: 40
+  starvingChance: 90
+  searchRadius: 30
+  reqProxToGrass: 3
+  grassLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!195 &-41722796188369334
 NavMeshAgent:
   m_ObjectHideFlags: 0

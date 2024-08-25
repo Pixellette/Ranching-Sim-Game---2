@@ -2540,12 +2540,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sheepPrefab: {fileID: 7383211971128209554, guid: 84c6787f1ff710f4581e3ec2a4d4f3ce, type: 3}
-  spawnRangeSheep: 31
-  numSheep: 20
+  spawnRangeSheep: 88
+  numSheep: 200
   allSheep: []
   cowPrefab: {fileID: 8093179604966282698, guid: 6be0c29aed5856541a4d09db4efed7e8, type: 3}
   spawnRangeCow: 60
-  numCow: 0
+  numCow: 100
   allCow: []
   minWait: 0
   maxWait: 3
@@ -3230,7 +3230,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1220795749
 Transform:
   m_ObjectHideFlags: 0
@@ -3839,6 +3839,7 @@ MonoBehaviour:
   numberOfGrass: 500
   terrain: {fileID: 1970145886}
   grassOffsetHeight: 0.01
+  grassParent: {fileID: 1500853949}
 --- !u!4 &1500853949
 Transform:
   m_ObjectHideFlags: 0
