@@ -1,31 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Drive : MonoBehaviour
 {
     [SerializeField] float speed = 10.0f;
-    [SerializeField] float rotationSpeed = 100.0f;
-    [SerializeField] float currentSpeed = 0; 
+    [SerializeField] float strafeSpeed = 7.5f; // Speed for moving left and right
+    [SerializeField] float currentSpeed = 0;
+    private NavMeshAgent agent;
 
+    void Start()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        if (agent != null)
+        {
+            agent.updateRotation = false; // Disable automatic rotation to avoid conflicts with LookControls
+        }
+    }
 
     void Update()
     {
-        // Get the horizontal and vertical axis.
-        // By default they are mapped to the arrow keys.
-        // The value is in the range -1 to 1
-        float translation = Input.GetAxis("Vertical") * speed;
-        float rotation = Input.GetAxis("Horizontal") * rotationSpeed;
+        // Get input for movement
+        float moveDirection = Input.GetAxis("Vertical") * speed;
+        float strafeDirection = Input.GetAxis("Horizontal") * strafeSpeed;
 
-        // Make it move 10 meters per second instead of 10 meters per frame...
-        translation *= Time.deltaTime;
-        rotation *= Time.deltaTime;
+        // Calculate movement direction
+        Vector3 move = transform.forward * moveDirection;
+        Vector3 strafe = transform.right * strafeDirection;
+        Vector3 movement = move + strafe;
 
-        // Move translation along the object's z-axis
-        transform.Translate(0, 0, translation);
-        currentSpeed = translation; // Note it being used here
-
-        // Rotate around our y-axis
-        transform.Rotate(0, rotation, 0);
+        // Apply movement using NavMeshAgent
+        if (agent != null && movement != Vector3.zero)
+        {
+            agent.Move(movement * Time.deltaTime);
+            currentSpeed = movement.magnitude;
+        }
     }
 }
+
+
+
+

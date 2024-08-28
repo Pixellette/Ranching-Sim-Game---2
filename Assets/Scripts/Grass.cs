@@ -6,6 +6,7 @@ public class Grass : MonoBehaviour
     public float minHeight = 0.1f; // Minimum height of grass
     public float growthRate = 0.01f; // Speed at which grass grows
     public float hungerThreshold = 0.5f; // Height threshold for Boids to eat
+    public float grassChonkiness = 4;
 
     [SerializeField] private float currentHeight;
     private bool isGrowing = true;
@@ -29,7 +30,7 @@ public class Grass : MonoBehaviour
         if (currentHeight < maxHeight)
         {
             currentHeight += growthRate * Time.deltaTime;
-            transform.localScale = new Vector3(1, Mathf.Min(currentHeight, maxHeight), 1);
+            transform.localScale = new Vector3(grassChonkiness, Mathf.Min(currentHeight, maxHeight), grassChonkiness);
         }
     }
 
@@ -37,9 +38,8 @@ public class Grass : MonoBehaviour
     {
         if (currentHeight > minHeight)
         {
-            Debug.Log("GRASS HAS BEEN CUT");
             currentHeight = Mathf.Max(currentHeight - amount, minHeight);
-            transform.localScale = new Vector3(1, currentHeight, 1);
+            transform.localScale = new Vector3(grassChonkiness, currentHeight, grassChonkiness);
         }
     }
 
