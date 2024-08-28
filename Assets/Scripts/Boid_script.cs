@@ -11,6 +11,7 @@ public class Boid_script : MonoBehaviour
 
     public LayerMask boidLayer; 
     public LayerMask nonBoidLayer;
+    public LayerMask fenceLayer;
 
     [SerializeField] bool behaviorOnCooldown = false;
     [SerializeField] bool seenTargetCooldown = false; 
@@ -113,9 +114,9 @@ public class Boid_script : MonoBehaviour
                 Flee(target.transform.position);
                 seenTargetCooldown = true; 
                 isFleeing = true;
-                // isFlocking = false;
-                // isWandering = false;
-                // isEating = false;
+                isFlocking = false;
+                isWandering = false;
+                isEating = false;
                 Invoke("ViewBehaviourCooldown", 5);
             }
             else if (TargetInRange(FlockManager.FM.senseRange)) // Target is within SENSE range; flee
@@ -240,7 +241,7 @@ public class Boid_script : MonoBehaviour
         float distance = Vector3.Distance(agent.transform.position, location);
 
         // Cast a ray to detect the obstacle in the path
-        if (Physics.Raycast(agent.transform.position, direction, out hit, distance, nonBoidLayer))
+        if (Physics.Raycast(agent.transform.position, direction, out hit, distance, fenceLayer))
         {
             // Calculate the closest point on the obstacle's surface to the agent
             Vector3 closestPoint = hit.point - direction * agent.radius;
@@ -358,7 +359,7 @@ public class Boid_script : MonoBehaviour
                 Vector3 directionToBoid = (boidCollider.transform.position - transform.position).normalized;
                 float distanceToBoid = Vector3.Distance(transform.position, boidCollider.transform.position);
 
-                if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, nonBoidLayer))
+                if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, fenceLayer))
                 {
                     // No obstacle in the way, proceed with calculations
                     Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
@@ -483,7 +484,7 @@ public class Boid_script : MonoBehaviour
                     float distance = directionToGrass.magnitude;
 
                     // Perform a raycast to check for obstacles between the Boid and the grass
-                    if (Physics.Raycast(transform.position, directionToGrass.normalized, out RaycastHit hit, distance, nonBoidLayer))
+                    if (Physics.Raycast(transform.position, directionToGrass.normalized, out RaycastHit hit, distance, fenceLayer))
                     {
                         // If the raycast hits something that is not the grass, discard this grass
                         if (hit.collider != grassCollider)
@@ -559,7 +560,7 @@ public class Boid_script : MonoBehaviour
                     Vector3 directionToBoid = (boidCollider.transform.position - transform.position).normalized;
                     float distanceToBoid = Vector3.Distance(transform.position, boidCollider.transform.position);
 
-                    if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, nonBoidLayer))
+                    if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, fenceLayer))
                     {
                         Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
                         if (nearbyBoid != null)

@@ -555,10 +555,13 @@ MonoBehaviour:
   target: {fileID: 8171005997478131900, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
   boidLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   nonBoidLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1783
+  fenceLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   behaviorOnCooldown: 0
   seenTargetCooldown: 0
   isFleeing: 1
@@ -581,10 +584,10 @@ MonoBehaviour:
   peckishThreshold: 80
   hungryThreshold: 50
   starvingThreshold: 20
-  peckishChance: 30
-  hungryChance: 60
+  peckishChance: 5
+  hungryChance: 20
   starvingChance: 90
-  searchRadius: 15
+  searchRadius: 20
   reqProxToGrass: 3
   grassLayer:
     serializedVersion: 2

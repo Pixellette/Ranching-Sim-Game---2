@@ -81,7 +81,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _Gradient: 1.4
+    - _Gradient: 2.67
     - _GradientPower: 1
     - _LeavesThickness: 0.5
     - _MaskClipValue: 0.5
@@ -113,6 +113,6 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GroundColor: {r: 0.0018211621, g: 0.08021983, b: 0.0047769533, a: 1}
-    - _TopColor: {r: 0.001214108, g: 0.25015837, b: 0.00699541, a: 1}
+    - _GroundColor: {r: 0.001517635, g: 0.07618539, b: 0.004391442, a: 1}
+    - _TopColor: {r: 0, g: 0.3773585, b: 0.01062978, a: 1}
   m_BuildTextureStacks: []
