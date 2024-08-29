@@ -49,8 +49,14 @@ public class FlockManager : MonoBehaviour
         public float alignmentWeight;
 
         [Range(0.01f,5.0f)]
+        public float fleeAlignmentWeight;
+
+        [Range(0.01f,5.0f)]
         public float cohesionWeight;
-        
+
+        [Range(0.01f,5.0f)]
+        public float fleeCohesionWeight;
+
         [Range(0.01f, 5.0f)]
         public float fleeWeight;
 

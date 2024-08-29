@@ -1027,8 +1027,10 @@ MonoBehaviour:
   flockingChance: 80
   seperationWeight: 1.5
   alignmentWeight: 1
+  fleeAlignmentWeight: 1
   cohesionWeight: 1
-  fleeWeight: 2.5
+  fleeCohesionWeight: 1.5
+  fleeWeight: 3
   viewAngle: 60
   viewRange: 30
   senseRange: 5
@@ -3793,8 +3795,10 @@ MonoBehaviour:
   flockingChance: 80
   seperationWeight: 1.5
   alignmentWeight: 1
+  fleeAlignmentWeight: 1
   cohesionWeight: 1
-  fleeWeight: 2.5
+  fleeCohesionWeight: 1.5
+  fleeWeight: 3
   viewAngle: 60
   viewRange: 30
   senseRange: 5

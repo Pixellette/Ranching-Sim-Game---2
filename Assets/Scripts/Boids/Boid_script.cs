@@ -391,6 +391,10 @@ public class Boid_script : MonoBehaviour
 
         if (groupSize > 0)
         {
+            // Choose weights based on whether the boid is fleeing
+            float alignmentWeight = isFleeing ? FlockManager.FM.fleeAlignmentWeight : FlockManager.FM.alignmentWeight;
+            float cohesionWeight = isFleeing ? FlockManager.FM.fleeCohesionWeight : FlockManager.FM.cohesionWeight;
+
             // Average the alignment direction
             alignment /= groupSize;
 
@@ -399,7 +403,7 @@ public class Boid_script : MonoBehaviour
             Vector3 toCohesion = (cohesion - transform.position).normalized;
 
             // Combine the three behaviors with weighting factors
-            Vector3 moveDirection = (separation * FlockManager.FM.seperationWeight) + (alignment * FlockManager.FM.alignmentWeight) + (toCohesion * FlockManager.FM.cohesionWeight);
+            Vector3 moveDirection = (separation * FlockManager.FM.seperationWeight) + (alignment * alignmentWeight) + (toCohesion * cohesionWeight);
 
             if(isFleeing)
             {
@@ -415,9 +419,22 @@ public class Boid_script : MonoBehaviour
         }
         else 
         {
-            Wander();
-            isWandering = true;
-            isFlocking = false;
+            if(isFleeing)
+            {
+                Vector3 fleeDirection = (fleeLocation - transform.position).normalized;
+                Vector3 moveDirection = fleeDirection;
+
+                // Normalize the result to get a final direction
+                Vector3 newDestination = transform.position + moveDirection.normalized * 10f;   
+                Seek(newDestination);
+            }
+            else 
+            {
+                Wander();
+                isWandering = true;
+                isFlocking = false;
+            }
+            
         }
     }
 
