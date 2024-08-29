@@ -50,6 +50,9 @@ public class FlockManager : MonoBehaviour
 
         [Range(0.01f,5.0f)]
         public float cohesionWeight;
+        
+        [Range(0.01f, 5.0f)]
+        public float fleeWeight;
 
 
     [Header ("Animal Awareness Settings")]

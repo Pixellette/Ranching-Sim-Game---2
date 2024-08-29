@@ -208,7 +208,7 @@ public class Boid_script : MonoBehaviour
         isEating = false;
         if (Random.Range(0, 100) < FlockManager.FM.flockingChance) // Apply flocking Chance. Flock
         {
-            ApplyFlockingRules();
+            ApplyFlockingRules(Vector3.zero);
             isFlocking = true;
             isWandering = false;
         }
@@ -262,7 +262,8 @@ public class Boid_script : MonoBehaviour
         Vector3 fleeVector = location - this.transform.position;
         Vector3 fleeLocation = this.transform.position - fleeVector;
 
-        Seek(fleeLocation);
+        // Seek(fleeLocation);
+        ApplyFlockingRules(fleeLocation);
     }
 
 
@@ -340,7 +341,7 @@ public class Boid_script : MonoBehaviour
     //                           Boid Rules 
     // ============================================================
 
-    void ApplyFlockingRules()
+    void ApplyFlockingRules(Vector3 fleeLocation)
     {
         int totalGroupSize= 0;
         int groupSize = 0;
@@ -399,6 +400,12 @@ public class Boid_script : MonoBehaviour
 
             // Combine the three behaviors with weighting factors
             Vector3 moveDirection = (separation * FlockManager.FM.seperationWeight) + (alignment * FlockManager.FM.alignmentWeight) + (toCohesion * FlockManager.FM.cohesionWeight);
+
+            if(isFleeing)
+            {
+                Vector3 fleeDirection = (fleeLocation - transform.position).normalized;
+                moveDirection += fleeDirection * FlockManager.FM.fleeWeight;
+            }
 
             // Normalize the result to get a final direction
             Vector3 newDestination = transform.position + moveDirection.normalized * 10f;
@@ -542,7 +549,7 @@ public class Boid_script : MonoBehaviour
     void OnDrawGizmosSelected()
     {
 
-        if (isFlocking)
+        if (isFlocking || isFleeing)
         {
             // Set the color for the gizmos
             Gizmos.color = Color.green;

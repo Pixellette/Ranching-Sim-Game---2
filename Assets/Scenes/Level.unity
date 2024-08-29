@@ -1028,6 +1028,7 @@ MonoBehaviour:
   seperationWeight: 1.5
   alignmentWeight: 1
   cohesionWeight: 1
+  fleeWeight: 2.5
   viewAngle: 60
   viewRange: 30
   senseRange: 5
@@ -3793,6 +3794,7 @@ MonoBehaviour:
   seperationWeight: 1.5
   alignmentWeight: 1
   cohesionWeight: 1
+  fleeWeight: 2.5
   viewAngle: 60
   viewRange: 30
   senseRange: 5
