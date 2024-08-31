@@ -19,11 +19,11 @@ public class GoalBehaviour : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Something entered");
+        // Debug.Log("Something entered");
         // Check if the entering object is a Boid by checking the tag or another identifier
         if (isBoidLayer(other.gameObject))
         {
-            Debug.Log("Its a boid!");
+            // Debug.Log("Its a boid!");
             currentBoidCount++;
             UpdateText();
             CheckGoalReached();
