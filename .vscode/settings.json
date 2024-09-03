@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "My Boids attempt - 2.sln"
+    "dotnet.defaultSolution": "Ranching Sim.sln"
 }
