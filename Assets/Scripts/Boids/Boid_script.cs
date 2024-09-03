@@ -17,6 +17,14 @@ public class Boid_script : MonoBehaviour
 
     [SerializeField] bool behaviorOnCooldown = false;
     [SerializeField] bool seenTargetCooldown = false; 
+
+    [Header ("Speed settings")]
+
+        [SerializeField] float currentSpeed; 
+        [SerializeField] float walkSpeedSheep;
+        [SerializeField] float walkSpeedCow;
+        [SerializeField] float runSpeedSheep;
+        [SerializeField] float runSpeedCow;
     
     [Header ("Behaviours Active")]
         [SerializeField] bool isFleeing = false;
@@ -58,7 +66,7 @@ public class Boid_script : MonoBehaviour
         [SerializeField] int starvingChance = 90;
 
         [SerializeField] float searchRadius = 30f; // Radius to search for grass
-        [SerializeField] float reqProxToGrass = 3.0f;
+        [SerializeField] float reqProxToGrass;
 
         public LayerMask grassLayer; // Layer mask to identify grass
         private Grass targetGrass; // Current target grass for the boid
@@ -90,11 +98,15 @@ public class Boid_script : MonoBehaviour
 
         if (this.gameObject.CompareTag("Cow"))
         {
+            currentSpeed = walkSpeedCow;
+            reqProxToGrass = 4f;
             isCow = true;
             isSheep = false;
         }
         else if (this.gameObject.CompareTag("Sheep"))
         {
+            reqProxToGrass = 3f;
+            currentSpeed = walkSpeedSheep;
             isCow = false;
             isSheep = true;
         }
@@ -110,6 +122,7 @@ public class Boid_script : MonoBehaviour
         ChooseBehaviour();
 
         UpdateAnimationState();
+        SetSpeed();
     }
 
 
@@ -303,6 +316,23 @@ public class Boid_script : MonoBehaviour
     }
 
 
+    void SetSpeed()
+    {
+        if(isFleeing)
+        {
+            if (isCow)  currentSpeed = runSpeedCow;
+            else if (isSheep) currentSpeed = runSpeedSheep;
+        }
+        else
+        {
+            if (isCow)  currentSpeed = walkSpeedCow;
+            else if (isSheep) currentSpeed = walkSpeedSheep;
+        }
+
+        agent.speed = currentSpeed;
+    }
+
+
 
     // ============================================================
     //                       Vision Methods
@@ -476,7 +506,6 @@ public class Boid_script : MonoBehaviour
 
     private void StartEatingBehavior()
     {
-        Debug.Log("Beginning Eat Behaviour");
         // Set bools 
         behaviorOnCooldown = true;
         lookingForFood = true; 
@@ -499,12 +528,8 @@ public class Boid_script : MonoBehaviour
         }
     }
 
-
-
     private void FindGrass()
     {
-        Debug.Log("Searching for grass");
-
         // Check nearby
         Collider[] grassColliders = Physics.OverlapSphere(transform.position, searchRadius, grassLayer);
 
@@ -566,7 +591,6 @@ public class Boid_script : MonoBehaviour
 
     private void CheckArrival()
     {
-        Debug.Log("Checking if arrived");
         if (targetGrass == null) return; // Early exit if no valid targetGrass
 
         // Check if the boid has reached the grass
@@ -579,7 +603,6 @@ public class Boid_script : MonoBehaviour
 
     private void StartEating()
     {
-        Debug.Log("Started Eating");
         // Apply Bools 
         lookingForFood = false;
         currentlyEating = true;
@@ -593,7 +616,6 @@ public class Boid_script : MonoBehaviour
 
     void FinishEating()
     {
-        Debug.Log("Stopped eating");
         if (targetGrass != null)
         {
             // Eat the grass
@@ -643,14 +665,27 @@ public class Boid_script : MonoBehaviour
         {
             animator.SetBool("isEating", true);
             animator.SetBool("isWalking", false);
+            animator.SetBool("isRunning", false);
         }
         else if (isMoving) // If the boid is moving, set the walking animation
         {
-            animator.SetBool("isWalking", true);
-            animator.SetBool("isEating", false);
+            if (isFleeing)
+            {
+                Debug.Log("isFleeing = true");
+                animator.SetBool("isRunning", true);
+                animator.SetBool("isWalking", false);
+                animator.SetBool("isEating", false);
+            }
+            else 
+            {
+                animator.SetBool("isWalking", true);
+                animator.SetBool("isRunning", false);
+                animator.SetBool("isEating", false);
+            }
         }
         else // Otherwise, use the idle animation
         {
+            animator.SetBool("isRunning", false);
             animator.SetBool("isWalking", false);
             animator.SetBool("isEating", false);
         }

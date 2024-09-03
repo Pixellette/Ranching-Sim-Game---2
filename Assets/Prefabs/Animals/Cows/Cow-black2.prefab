@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1573858704572849225}
   - component: {fileID: 4714565325309843445}
   - component: {fileID: 3172684926720316442}
+  - component: {fileID: -5270511574799837651}
   m_Layer: 8
   m_Name: Cow-black2
   m_TagString: Cow
@@ -60,6 +61,11 @@ MonoBehaviour:
     m_Bits: 1024
   behaviorOnCooldown: 0
   seenTargetCooldown: 0
+  currentSpeed: 0
+  walkSpeedSheep: 0
+  walkSpeedCow: 3.5
+  runSpeedSheep: 0
+  runSpeedCow: 7
   isFleeing: 0
   isWandering: 0
   isFlocking: 0
@@ -155,10 +161,31 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 1
   m_Center: {x: 0, y: -0.5, z: 0.3}
+--- !u!65 &-5270511574799837651
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5573219670902649266}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.6, y: 1.4, z: 2.3}
+  m_Center: {x: 0, y: -0.8, z: 0.4}
 --- !u!1001 &5339414329795742300
 PrefabInstance:
   m_ObjectHideFlags: 0

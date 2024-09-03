@@ -60,6 +60,11 @@ MonoBehaviour:
     m_Bits: 1024
   behaviorOnCooldown: 0
   seenTargetCooldown: 0
+  currentSpeed: 0
+  walkSpeedSheep: 1.5
+  walkSpeedCow: 3.5
+  runSpeedSheep: 4
+  runSpeedCow: 6
   isFleeing: 1
   isWandering: 0
   isFlocking: 0
