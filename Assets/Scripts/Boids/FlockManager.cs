@@ -6,71 +6,66 @@ public class FlockManager : MonoBehaviour
 {
     public static FlockManager FM;
 
-    [Header ("Spawn Settings ")]
-        public GameObject sheepPrefab; 
-        [Range(1,200)]
-        public int spawnRangeSheep;
-        public int numSheep; 
-        public GameObject[] allSheep; 
+    [Header("Spawn Settings")]
+    public GameObject[] sheepPrefabs; // Array to store sheep prefab variations
+    [Range(1, 200)]
+    public int spawnRangeSheep;
+    public int numSheep;
+    public GameObject[] allSheep;
 
-        public GameObject cowPrefab; 
+    public GameObject[] cowPrefabs; // Array to store cow prefab variations
+    [Range(1, 200)]
+    public int spawnRangeCow;
+    public int numCow;
+    public GameObject[] allCow;
 
+    [Header("Behaviour Settings")]
+    [Range(1, 5)]
+    public int minWait;
 
-        [Range(1,200)]
-        public int spawnRangeCow;
-        public int numCow; 
-        public GameObject[] allCow; 
+    [Range(1, 10)]
+    public int maxWait;
 
-    [Header ("Behaviour Settings")]
-        [Range(1, 5)]
-        public int minWait;
+    [Header("Wander Settings")]
+    [SerializeField] public float wanderRadius = 10;
+    [SerializeField] public float wanderDistance = 20;
+    [SerializeField] public float wanderJitter = 1;
 
-        [Range(1, 10)]
-        public int maxWait;
+    [Header("Flocking Settings")]
+    [Range(1.0f, 30.0f)]
+    public float neighbourDistance;
+    public float aheadDistance = 5;
 
-    [Header ("Wander Settings")]
-        [SerializeField] public float wanderRadius = 10;
-        [SerializeField] public float wanderDistance = 20;
-        [SerializeField] public float wanderJitter = 1; 
+    [Range(1, 100)]
+    public int flockingChance;
 
+    [Range(0.01f, 5.0f)]
+    public float separationWeight;
 
-    [Header ("Flocking Settings")]
-        [Range(1.0f, 30.0f)]
-        public float neighbourDistance;
-        public float aheadDistance = 5;
-        
-        [Range(1,100)]
-        public int flockingChance;
+    [Range(0.01f, 5.0f)]
+    public float alignmentWeight;
 
-        [Range(0.01f,5.0f)]
-        public float seperationWeight;
+    [Range(0.01f, 5.0f)]
+    public float fleeAlignmentWeight;
 
-        [Range(0.01f,5.0f)]
-        public float alignmentWeight;
+    [Range(0.01f, 5.0f)]
+    public float cohesionWeight;
 
-        [Range(0.01f,5.0f)]
-        public float fleeAlignmentWeight;
+    [Range(0.01f, 5.0f)]
+    public float fleeCohesionWeight;
 
-        [Range(0.01f,5.0f)]
-        public float cohesionWeight;
+    [Range(0.01f, 5.0f)]
+    public float fleeWeight;
 
-        [Range(0.01f,5.0f)]
-        public float fleeCohesionWeight;
+    [Header("Animal Awareness Settings")]
+    [Range(30.0f, 90.0f)]
+    public float viewAngle;
 
-        [Range(0.01f, 5.0f)]
-        public float fleeWeight;
+    [Range(30.0f, 90.0f)]
+    public float viewRange;
 
-
-    [Header ("Animal Awareness Settings")]
-        [Range(30.0f, 90.0f)]
-        public float viewAngle;
-
-        [Range(30.0f, 90.0f)]
-        public float viewRange;
-
-        [Range(1.0f, 30.0f)]
-        public float senseRange; 
-
+    [Range(1.0f, 30.0f)]
+    public float senseRange;
 
     void Start()
     {
@@ -83,7 +78,7 @@ public class FlockManager : MonoBehaviour
         for (int i = 0; i < numSheep; i++)
         {
             Vector3 pos = this.transform.position + new Vector3(Random.Range(-spawnRangeSheep, spawnRangeSheep),
-                                                                50f, 
+                                                                50f,
                                                                 Random.Range(-spawnRangeSheep, spawnRangeSheep));
 
             if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit))
@@ -91,7 +86,9 @@ public class FlockManager : MonoBehaviour
                 pos.y = hit.point.y;
             }
 
-            allSheep[i] = Instantiate(sheepPrefab, pos, Quaternion.identity);
+            // Select a random sheep prefab
+            GameObject selectedSheepPrefab = sheepPrefabs[Random.Range(0, sheepPrefabs.Length)];
+            allSheep[i] = Instantiate(selectedSheepPrefab, pos, Quaternion.identity);
             allSheep[i].transform.parent = sheepParent.transform; // Set parent
         }
 
@@ -108,15 +105,14 @@ public class FlockManager : MonoBehaviour
                 pos.y = hit.point.y;
             }
 
-            allCow[i] = Instantiate(cowPrefab, pos, Quaternion.identity);
+            // Select a random cow prefab
+            GameObject selectedCowPrefab = cowPrefabs[Random.Range(0, cowPrefabs.Length)];
+            allCow[i] = Instantiate(selectedCowPrefab, pos, Quaternion.identity);
             allCow[i].transform.parent = cowParent.transform; // Set parent
         }
 
         FM = this;
     }
-
-
-
 
     void Update()
     {

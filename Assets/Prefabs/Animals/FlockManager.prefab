@@ -44,7 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f286d4b87ff35b44faaad771d6a03590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sheepPrefab: {fileID: 7383211971128209554, guid: 84c6787f1ff710f4581e3ec2a4d4f3ce, type: 3}
+  sheepPrefabs:
+  - {fileID: 4038172988071669232, guid: 9181fe3151a2e3f49b7202a70986e047, type: 3}
+  - {fileID: 4038172988071669232, guid: 614f36c686e7d1f4b9b92834ddcd5524, type: 3}
+  - {fileID: 4038172988071669232, guid: b2e9ce540e1be1d4eacae0754774e6a2, type: 3}
   spawnRangeSheep: 35
   numSheep: 200
   allSheep:
@@ -248,7 +251,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  cowPrefab: {fileID: 8093179604966282698, guid: 6be0c29aed5856541a4d09db4efed7e8, type: 3}
+  cowPrefabs:
+  - {fileID: 5573219670902649266, guid: 2b115bde7be8d8f4e935bd08d76c6e52, type: 3}
   spawnRangeCow: 35
   numCow: 50
   allCow:
@@ -310,9 +314,12 @@ MonoBehaviour:
   neighbourDistance: 15
   aheadDistance: 5
   flockingChance: 80
-  seperationWeight: 1.5
+  separationWeight: 1.5
   alignmentWeight: 1
+  fleeAlignmentWeight: 1
   cohesionWeight: 1
+  fleeCohesionWeight: 1.5
+  fleeWeight: 2.5
   viewAngle: 60
   viewRange: 30
   senseRange: 5

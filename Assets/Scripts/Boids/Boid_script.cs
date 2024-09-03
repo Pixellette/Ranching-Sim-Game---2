@@ -8,6 +8,8 @@ public class Boid_script : MonoBehaviour
 {
     NavMeshAgent agent;
     public GameObject target;  
+    Animator animator;
+
 
     public LayerMask boidLayer; 
     public LayerMask nonBoidLayer;
@@ -20,7 +22,9 @@ public class Boid_script : MonoBehaviour
         [SerializeField] bool isFleeing = false;
         [SerializeField] bool isWandering = false; // For DEBUG only
         [SerializeField] bool isFlocking = false; // For DEBUG only
-        [SerializeField] bool isEating = false; // For DEBUG only 
+        // [SerializeField] bool isEating = false; // For DEBUG only 
+        [SerializeField] bool lookingForFood = false;
+        [SerializeField] bool currentlyEating = false; // For anims
 
 
     [Header ("Wander Settings")]
@@ -68,6 +72,13 @@ public class Boid_script : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>();
+        // animator = transform.Find("TFP_Sheep_01A").GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogError("Animator component not found on the specified child object.");
+        }
+
         target = GameObject.FindWithTag("Predator");
 
         boidLayer = LayerMask.GetMask("Boid");
@@ -97,6 +108,8 @@ public class Boid_script : MonoBehaviour
     {
         UpdateHungerState();
         ChooseBehaviour();
+
+        UpdateAnimationState();
     }
 
 
@@ -116,7 +129,7 @@ public class Boid_script : MonoBehaviour
                 isFleeing = true;
                 isFlocking = false;
                 isWandering = false;
-                isEating = false;
+                lookingForFood = false;
                 Invoke("ViewBehaviourCooldown", 5);
             }
             else if (TargetInRange(FlockManager.FM.senseRange)) // Target is within SENSE range; flee
@@ -126,7 +139,7 @@ public class Boid_script : MonoBehaviour
                 isFleeing = true;
                 isFlocking = false;
                 isWandering = false;
-                isEating = false;
+                lookingForFood = false;
                 Invoke("ViewBehaviourCooldown", 5);
             }
             else if (isFleeing && (TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange))) // If currently fleeing and still within range KEEP fleeing
@@ -134,7 +147,7 @@ public class Boid_script : MonoBehaviour
                 Flee(target.transform.position);
                 isFlocking = false;
                 isWandering = false;
-                isEating = false;
+                lookingForFood = false;
             }
             else if (isFleeing) // IF target is fleeing but no longer in range then STOP fleeing 
             {
@@ -144,7 +157,9 @@ public class Boid_script : MonoBehaviour
             {
                 if (!behaviorOnCooldown) // Check if already behaving 
                 {
-                    // Check hunger state first before considering flocking or wandering
+                    if (!currentlyEating)
+                    {
+                        // Check hunger state first before considering flocking or wandering
                     if (isStarving)
                     {
                         if (Random.Range(0, 100) < starvingChance) // High chance to eat
@@ -186,6 +201,8 @@ public class Boid_script : MonoBehaviour
                     // int cooldownTime = Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
                     // behaviorOnCooldown = true; 
                     // Invoke("BehavoiurCooldown", cooldownTime);
+                    }
+                    
                 }
             }
         }
@@ -205,7 +222,7 @@ public class Boid_script : MonoBehaviour
         int cooldownTime = Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
         behaviorOnCooldown = true; 
         Invoke("BehavoiurCooldown", cooldownTime);
-        isEating = false;
+        lookingForFood = false;
         if (Random.Range(0, 100) < FlockManager.FM.flockingChance) // Apply flocking Chance. Flock
         {
             ApplyFlockingRules(Vector3.zero);
@@ -403,7 +420,7 @@ public class Boid_script : MonoBehaviour
             Vector3 toCohesion = (cohesion - transform.position).normalized;
 
             // Combine the three behaviors with weighting factors
-            Vector3 moveDirection = (separation * FlockManager.FM.seperationWeight) + (alignment * alignmentWeight) + (toCohesion * cohesionWeight);
+            Vector3 moveDirection = (separation * FlockManager.FM.separationWeight) + (alignment * alignmentWeight) + (toCohesion * cohesionWeight);
 
             if(isFleeing)
             {
@@ -459,27 +476,21 @@ public class Boid_script : MonoBehaviour
 
     private void StartEatingBehavior()
     {
-        int cooldownTime = Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
-        behaviorOnCooldown = true; 
-        Invoke("BehavoiurCooldown", 4);
-        isEating = true;
-        isFlocking = false;
-        isWandering = false;
+        Debug.Log("Beginning Eat Behaviour");
+        // Set bools 
         behaviorOnCooldown = true;
+        lookingForFood = true; 
+        isFlocking = false; 
+        isWandering = false; 
+
+        Invoke("BehavoiurCooldown", 3);
 
         // Clear the current pathfinding destination
         GetComponent<NavMeshAgent>().ResetPath();
 
-        StartEating(); // Initiates the eating behavior, including searching for food
-    }
-
-    private void StartEating()
-    {
-        // This method can include logic to start the eating behavior
-        isEating = true;
         if (targetGrass == null || !targetGrass.IsTallEnough() || Vector3.Distance(transform.position, targetGrass.transform.position) > searchRadius)
         {
-            FindAndEatGrass(); // Look for grass when hungry and current target is invalid
+            FindGrass(); // Look for grass when hungry and current target is invalid
         }
         else
         {
@@ -488,9 +499,13 @@ public class Boid_script : MonoBehaviour
         }
     }
 
-    private void FindAndEatGrass()
+
+
+    private void FindGrass()
     {
-        // Use OverlapSphere to find nearby grass
+        Debug.Log("Searching for grass");
+
+        // Check nearby
         Collider[] grassColliders = Physics.OverlapSphere(transform.position, searchRadius, grassLayer);
 
         if (grassColliders.Length > 0)
@@ -517,7 +532,6 @@ public class Boid_script : MonoBehaviour
                         }
                     }
 
-                    // float distance = Vector3.Distance(transform.position, grass.transform.position);
                     if (distance < closestDistance)
                     {
                         closestDistance = distance;
@@ -533,28 +547,112 @@ public class Boid_script : MonoBehaviour
             }
             else
             {
-    
                 targetGrass = null; // Reset target if no suitable grass is found
+
+                // Didn't find grass so keep moving
+                Debug.Log("Didn't find grass (A)");
+                lookingForFood = false;
             }
         }
         else
         {
             targetGrass = null; // Reset target if no grass is found
+
+            // Didn't find grass so keep moving
+            Debug.Log("Didn't find grass (B)");
+            lookingForFood = false;
         }
     }
 
     private void CheckArrival()
     {
+        Debug.Log("Checking if arrived");
         if (targetGrass == null) return; // Early exit if no valid targetGrass
 
         // Check if the boid has reached the grass
-        if (Vector3.Distance(transform.position, targetGrass.transform.position) < reqProxToGrass)
+        if (Vector3.Distance(transform.position, targetGrass.transform.position) < reqProxToGrass) 
+        {  
+            // Arrived at grass - start eating 
+            StartEating();
+        }
+    }
+
+    private void StartEating()
+    {
+        Debug.Log("Started Eating");
+        // Apply Bools 
+        lookingForFood = false;
+        currentlyEating = true;
+
+        // Stop the Boid before starting the eating animation
+        agent.isStopped = true;
+
+        // Invoke a method to resume movement after the eating animation
+        Invoke("FinishEating", 5.0f);
+    }
+
+    void FinishEating()
+    {
+        Debug.Log("Stopped eating");
+        if (targetGrass != null)
         {
+            // Eat the grass
             targetGrass.CutGrass(eatAmount); // Eat the grass
-            currentHunger += hungerAdded; // increase hunger
+
+            // Update hunger
+            currentHunger += hungerAdded;
             currentHunger = Mathf.Clamp(currentHunger, minHunger, maxHunger); // Clamp after eating
+            displayedHunger = Mathf.RoundToInt(currentHunger);
+
+            // Set Bools 
+            currentlyEating = false;
+            behaviorOnCooldown = false; 
+
+            // Allow boid to begin moving again 
+            agent.isStopped = false; 
+
+            // Clear grass target 
             targetGrass = null; // Clear the target after eating
-            behaviorOnCooldown = false;
+        }
+        else // Grass failed somehow - reset! 
+        {
+            // Set Bools 
+            currentlyEating = false;
+            behaviorOnCooldown = false; 
+
+            // Allow boid to begin moving again 
+            agent.isStopped = false; 
+
+            // Clear grass target 
+            targetGrass = null; // Clear the target after eating
+        }
+    }
+
+
+    // ============================================================
+    //                       Animation Methods
+    // ============================================================
+
+    void UpdateAnimationState()
+    {
+        // Check if the boid is moving
+        bool isMoving = agent.velocity.magnitude > 0.01f; // Use a small threshold to determine movement
+
+        // If the boid is eating, prioritize the eating animation
+        if (currentlyEating)
+        {
+            animator.SetBool("isEating", true);
+            animator.SetBool("isWalking", false);
+        }
+        else if (isMoving) // If the boid is moving, set the walking animation
+        {
+            animator.SetBool("isWalking", true);
+            animator.SetBool("isEating", false);
+        }
+        else // Otherwise, use the idle animation
+        {
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isEating", false);
         }
     }
 
@@ -572,7 +670,14 @@ public class Boid_script : MonoBehaviour
             Gizmos.color = Color.green;
 
             // Create a sphere to represent the detection radius
-            Gizmos.DrawWireSphere(transform.position, FlockManager.FM.neighbourDistance);
+            if (FlockManager.FM != null)
+            {
+                Gizmos.DrawWireSphere(transform.position, FlockManager.FM.neighbourDistance);
+            }
+            else
+            {
+                Debug.LogWarning("FlockManager.FM is null, unable to draw Gizmos.");
+            }
 
             // Draw lines to each boid being tracked for flocking
             Collider[] nearbyBoids = Physics.OverlapSphere(transform.position, FlockManager.FM.neighbourDistance, boidLayer);
@@ -601,7 +706,7 @@ public class Boid_script : MonoBehaviour
             }
         }
 
-        if(isEating)
+        if(lookingForFood)
         {
             // Set the color for the gizmos
             Gizmos.color = Color.cyan;
@@ -618,8 +723,16 @@ public class Boid_script : MonoBehaviour
                 Gizmos.DrawLine(transform.position, grassCollider.transform.position);
             }
         }
+
+        // Draw a line to the piece of grass the boid is currently eating
+        if (currentlyEating && targetGrass != null) // Assuming 'targetGrass' is the reference to the grass being eaten
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, targetGrass.transform.position); // Draw a line from the boid to the grass
+
+            // Optionally, you can draw a sphere at the grass position to highlight it
+            Gizmos.DrawWireSphere(targetGrass.transform.position, 0.5f);
+        }
     }
-
-
 
 }
