@@ -3,3 +3,4 @@ Assets/Toon[[:space:]]Farm[[:space:]]Pack filter=lfs diff=lfs merge=lfs -text
 Assets/Cozy[[:space:]]Game[[:space:]]UI filter=lfs diff=lfs merge=lfs -text
 Assets/Scenes filter=lfs diff=lfs merge=lfs -text
 Assets/Casual[[:space:]]Farm[[:space:]]Game[[:space:]]Music[[:space:]]Pack filter=lfs diff=lfs merge=lfs -text
+Assets/Casual[[:space:]]Farm[[:space:]]Game[[:space:]]Music[[:space:]]Pack filter=lfs diff=lfs merge=lfs -text
