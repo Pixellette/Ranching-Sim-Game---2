@@ -12,6 +12,7 @@ public class BackgroundMusic : MonoBehaviour
     private int currentTrackIndex = 0;
     private bool isFading = false;  // To prevent triggering new tracks during fade
 
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -19,7 +20,11 @@ public class BackgroundMusic : MonoBehaviour
 
         if (musicTracks.Length > 0)
         {
-            PlayNextTrack();
+            // Clear any loaded clip and start with track at index 0
+            audioSource.Stop(); 
+            audioSource.clip = musicTracks[0];
+            currentTrackIndex = 0;  // Ensure track index starts at 0
+            audioSource.Play();
         }
         else
         {

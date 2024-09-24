@@ -5627,6 +5627,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c153048bb481d6342b5396e98d6f640d, type: 3}
   - {fileID: 8300000, guid: 5d16af5acb2ef454aaf038fdc4792aa2, type: 3}
   delayBetweenTracks: 2
+  fadeDuration: 2
+  volume: 0.45
 --- !u!82 &1465062803
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5637,7 +5639,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6b8be6572c9fc424a80813bb13c58fa5, type: 3}
+  m_audioClip: {fileID: 8300000, guid: a0651134ef5875644b5f867a1284059d, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

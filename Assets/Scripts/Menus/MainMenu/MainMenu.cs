@@ -8,6 +8,8 @@ public class MainMenu : MonoBehaviour
 {
 
     public String newGameScene;
+    private AudioSource backgroundMusicAudioSource;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -23,11 +25,31 @@ public class MainMenu : MonoBehaviour
 
     public void NewGame()
     {
+        StopBackgroundMusic();
         SceneManager.LoadScene(newGameScene);
     }
 
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void StopBackgroundMusic()
+    {
+        // Find the GameObject named "BackgroundMusic" and get its AudioSource
+        GameObject backgroundMusic = GameObject.Find("BackgroundMusic");
+
+
+        if (backgroundMusic != null)
+        {
+            backgroundMusicAudioSource = backgroundMusic.GetComponent<AudioSource>();
+
+            if (backgroundMusicAudioSource != null)
+            {
+                // Stop the music or clear the clip before loading the new scene
+                backgroundMusicAudioSource.Stop();
+                backgroundMusicAudioSource.clip = null;  // Clear the clip if necessary
+            }
+        }
     }
 }
