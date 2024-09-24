@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -70,6 +71,14 @@ public class Boid_script : MonoBehaviour
 
         public LayerMask grassLayer; // Layer mask to identify grass
         private Grass targetGrass; // Current target grass for the boid
+
+        // TODO: 
+        // // Define the range of child objects that are valid body options
+        // [SerializeField] private int bodyStartIndex = 1;
+        // [SerializeField] private int bodyEndIndex = 14; // Adjust this to match the index range of the body objects
+
+        // Name of the child object that contains the body versions
+        [SerializeField] private string bodyHolderName = "BodyHolder";
         
 
 
@@ -92,7 +101,7 @@ public class Boid_script : MonoBehaviour
         boidLayer = LayerMask.GetMask("Boid");
         nonBoidLayer = ~boidLayer; 
 
-        currentHunger = Random.Range(70,100);
+        currentHunger = UnityEngine.Random.Range(70,100);
         displayedHunger = Mathf.RoundToInt(currentHunger);
 
 
@@ -102,6 +111,7 @@ public class Boid_script : MonoBehaviour
             reqProxToGrass = 4f;
             isCow = true;
             isSheep = false;
+            ChooseRandomBody(1, 13);
         }
         else if (this.gameObject.CompareTag("Sheep"))
         {
@@ -109,6 +119,7 @@ public class Boid_script : MonoBehaviour
             currentSpeed = walkSpeedSheep;
             isCow = false;
             isSheep = true;
+            ChooseRandomBody(1, 3);
         }
         else
         {
@@ -175,7 +186,7 @@ public class Boid_script : MonoBehaviour
                         // Check hunger state first before considering flocking or wandering
                     if (isStarving)
                     {
-                        if (Random.Range(0, 100) < starvingChance) // High chance to eat
+                        if (UnityEngine.Random.Range(0, 100) < starvingChance) // High chance to eat
                         {
                             StartEatingBehavior();
                         }
@@ -186,7 +197,7 @@ public class Boid_script : MonoBehaviour
                     }
                     else if (isHungry)
                     {
-                        if (Random.Range(0, 100) < hungryChance) // Moderate chance to eat
+                        if (UnityEngine.Random.Range(0, 100) < hungryChance) // Moderate chance to eat
                         {
                             StartEatingBehavior();
                         }
@@ -197,7 +208,7 @@ public class Boid_script : MonoBehaviour
                     }
                     else if (isPeckish)
                     {
-                        if (Random.Range(0, 100) < peckishChance) // Low chance to eat
+                        if (UnityEngine.Random.Range(0, 100) < peckishChance) // Low chance to eat
                         {
                             StartEatingBehavior();
                         }
@@ -232,11 +243,11 @@ public class Boid_script : MonoBehaviour
     
     private void ChooseOtherBehavior()
     {
-        int cooldownTime = Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
+        int cooldownTime = UnityEngine.Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
         behaviorOnCooldown = true; 
         Invoke("BehavoiurCooldown", cooldownTime);
         lookingForFood = false;
-        if (Random.Range(0, 100) < FlockManager.FM.flockingChance) // Apply flocking Chance. Flock
+        if (UnityEngine.Random.Range(0, 100) < FlockManager.FM.flockingChance) // Apply flocking Chance. Flock
         {
             ApplyFlockingRules(Vector3.zero);
             isFlocking = true;
@@ -688,6 +699,55 @@ public class Boid_script : MonoBehaviour
             animator.SetBool("isRunning", false);
             animator.SetBool("isWalking", false);
             animator.SetBool("isEating", false);
+        }
+    }
+
+    
+
+
+    void ChooseRandomBody(int bodyStartIndex, int bodyEndIndex)
+    {
+        // Attempt to find the GameObject that holds the body variations
+        Transform bodyHolder = transform.Find(bodyHolderName);
+
+        // Debug to check if the bodyHolder is found
+        if (bodyHolder == null)
+        {
+            Debug.LogError("BodyHolder with name '" + bodyHolderName + "' not found under the parent GameObject '" + gameObject.name + "'. Please check if the name is correct and the object exists.");
+            return;
+        }
+        else
+        {
+            Debug.Log("BodyHolder '" + bodyHolderName + "' successfully found.");
+        }
+
+        // Check the number of children under the bodyHolder
+        int totalBodies = bodyHolder.childCount;
+        Debug.Log("BodyHolder has " + totalBodies + " child objects.");
+
+        // If the range is invalid or the bodyHolder doesn't have enough children, log and return
+        if (totalBodies == 0 || bodyStartIndex < 0 || bodyEndIndex >= totalBodies || bodyStartIndex > bodyEndIndex)
+        {
+            Debug.LogError("Invalid body index range or no body objects found. Check that bodyStartIndex and bodyEndIndex are correct.");
+            return;
+        }
+
+        // Get the number of body options in the specified range
+        int bodyCount = bodyEndIndex - bodyStartIndex + 1;
+
+        // Debug log to confirm how many bodies are in the valid range
+        Debug.Log("Valid body range: " + bodyCount + " bodies between indices " + bodyStartIndex + " and " + bodyEndIndex + ".");
+
+        // Choose a random index within the valid range
+        int randomIndex = UnityEngine.Random.Range(bodyStartIndex, bodyEndIndex + 1);
+        Debug.Log("Random body chosen at index: " + randomIndex);
+
+        // Loop through the bodyHolder's children and activate the randomly chosen one
+        for (int i = bodyStartIndex; i <= bodyEndIndex; i++)
+        {
+            bool isActive = i == randomIndex;
+            bodyHolder.GetChild(i).gameObject.SetActive(isActive);
+            Debug.Log((isActive ? "Activated " : "Deactivated ") + "body at index " + i);
         }
     }
 

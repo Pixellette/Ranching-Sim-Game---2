@@ -5,11 +5,11 @@ using UnityEngine.AI;
 public class FenceBuilder : MonoBehaviour
 {
     [Header("Fence Settings")]
-    public GameObject fencePrefab; // The fence or wall prefab to instantiate
-    public GameObject ghostFencePrefab; // The "ghost" fence prefab to visualize placement
-    public LayerMask groundLayer; // LayerMask to identify ground
-    public LayerMask fenceLayer; 
-    public float fenceSegmentLength = 1.0f; // Length of each fence segment
+        public GameObject fencePrefab; // The fence or wall prefab to instantiate
+        public GameObject ghostFencePrefab; // The "ghost" fence prefab to visualize placement
+        public LayerMask groundLayer; // LayerMask to identify ground
+        public LayerMask fenceLayer; 
+        public float fenceSegmentLength = 1.0f; // Length of each fence segment
 
     [Header("Player and Camera Settings")]
         public GameObject playerBody; // The player's body to freeze during build mode
@@ -187,7 +187,7 @@ public class FenceBuilder : MonoBehaviour
             // Assign the FenceSegment tag to the new fence
             newFence.tag = "Fence";
 
-            // Optionally add a NavMeshObstacle component to make the fence an obstacle
+            // Add a NavMeshObstacle component to make the fence an obstacle
             NavMeshObstacle obstacle = newFence.GetComponent<NavMeshObstacle>();
             if (obstacle == null)
             {

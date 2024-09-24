@@ -7,14 +7,19 @@ public class FlockManager : MonoBehaviour
     public static FlockManager FM;
 
     [Header("Spawn Settings")]
-    public GameObject[] sheepPrefabs; // Array to store sheep prefab variations
-    [Range(1, 200)]
+    // TODO: Keep for later having genders / babies 
+    // public GameObject[] sheepPrefabs; // Array to store sheep prefab variations
+    // [Range(1, 200)]
+
+    public GameObject sheepPrefab; 
     public int spawnRangeSheep;
     public int numSheep;
     public GameObject[] allSheep;
 
-    public GameObject[] cowPrefabs; // Array to store cow prefab variations
-    [Range(1, 200)]
+    // TODO: Keep for later having genders / babies 
+    // public GameObject[] cowPrefabs; // Array to store cow prefab variations
+    // [Range(1, 200)]
+    public GameObject cowPrefab;
     public int spawnRangeCow;
     public int numCow;
     public GameObject[] allCow;
@@ -86,10 +91,14 @@ public class FlockManager : MonoBehaviour
                 pos.y = hit.point.y;
             }
 
-            // Select a random sheep prefab
-            GameObject selectedSheepPrefab = sheepPrefabs[Random.Range(0, sheepPrefabs.Length)];
-            allSheep[i] = Instantiate(selectedSheepPrefab, pos, Quaternion.identity);
-            allSheep[i].transform.parent = sheepParent.transform; // Set parent
+            // TODO: Select a random sheep prefab - Rework later for adding genders / babies? 
+            // GameObject selectedSheepPrefab = sheepPrefabs[Random.Range(0, sheepPrefabs.Length)];
+            // allSheep[i] = Instantiate(selectedSheepPrefab, pos, Quaternion.identity);
+            // allSheep[i].transform.parent = sheepParent.transform; // Set parent
+
+
+            allSheep[i] = Instantiate(sheepPrefab, pos,Quaternion.identity);
+            allSheep[i].transform.parent = sheepParent.transform;
         }
 
         // Create and position all cows
@@ -105,10 +114,13 @@ public class FlockManager : MonoBehaviour
                 pos.y = hit.point.y;
             }
 
-            // Select a random cow prefab
-            GameObject selectedCowPrefab = cowPrefabs[Random.Range(0, cowPrefabs.Length)];
-            allCow[i] = Instantiate(selectedCowPrefab, pos, Quaternion.identity);
-            allCow[i].transform.parent = cowParent.transform; // Set parent
+            // TODO:  // Select a random cow prefab - Rework later for adding genders / babies? 
+            // GameObject selectedCowPrefab = cowPrefabs[Random.Range(0, cowPrefabs.Length)];
+            // allCow[i] = Instantiate(selectedCowPrefab, pos, Quaternion.identity);
+            // allCow[i].transform.parent = cowParent.transform; // Set parent
+
+            allCow[i] = Instantiate(cowPrefab, pos,Quaternion.identity);
+            allCow[i].transform.parent = cowParent.transform;
         }
 
         FM = this;
