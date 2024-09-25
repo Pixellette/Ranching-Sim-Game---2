@@ -60,7 +60,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   behaviorOnCooldown: 0
-  seenTargetCooldown: 0
+  fleeCooldown: 0
   currentSpeed: 0
   walkSpeedSheep: 0
   walkSpeedCow: 3.5
@@ -74,6 +74,8 @@ MonoBehaviour:
   wanderTarget: {x: 0, y: 0, z: 0}
   isCow: 1
   isSheep: 0
+  searchTimer: 5
+  eatingTimer: 5
   currentHunger: 0
   displayedHunger: 0
   maxHunger: 100

@@ -17,7 +17,7 @@ public class Boid_script : MonoBehaviour
     public LayerMask fenceLayer;
 
     [SerializeField] bool behaviorOnCooldown = false;
-    [SerializeField] bool seenTargetCooldown = false; 
+    [SerializeField] bool fleeCooldown = false; 
 
     [Header ("Speed settings")]
 
@@ -46,6 +46,8 @@ public class Boid_script : MonoBehaviour
 
 
     [Header ("Hunger")]
+        [SerializeField] float searchTimer;
+        [SerializeField] float eatingTimer;
         [SerializeField] float currentHunger; 
         [SerializeField] int displayedHunger;
         [SerializeField] float maxHunger = 100f;
@@ -144,104 +146,135 @@ public class Boid_script : MonoBehaviour
     
     void ChooseBehaviour() 
     {
-        if (!seenTargetCooldown)
-        {
-            if (CanSeeTarget()) // Target is within SIGHT range; flee
-            { 
-                Flee(target.transform.position);
-                seenTargetCooldown = true; 
-                isFleeing = true;
-                isFlocking = false;
-                isWandering = false;
-                lookingForFood = false;
-                Invoke("ViewBehaviourCooldown", 5);
-            }
-            else if (TargetInRange(FlockManager.FM.senseRange)) // Target is within SENSE range; flee
-            {
-                Flee(target.transform.position);
-                seenTargetCooldown = true; 
-                isFleeing = true;
-                isFlocking = false;
-                isWandering = false;
-                lookingForFood = false;
-                Invoke("ViewBehaviourCooldown", 5);
-            }
-            else if (isFleeing && (TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange))) // If currently fleeing and still within range KEEP fleeing
-            {
-                Flee(target.transform.position);
-                isFlocking = false;
-                isWandering = false;
-                lookingForFood = false;
-            }
-            else if (isFleeing) // IF target is fleeing but no longer in range then STOP fleeing 
-            {
-                isFleeing = false;
-            }
-            else // Not currently Fleeing
-            {
-                if (!behaviorOnCooldown) // Check if already behaving 
-                {
-                    if (!currentlyEating)
-                    {
-                        // Check hunger state first before considering flocking or wandering
-                    if (isStarving)
-                    {
-                        if (UnityEngine.Random.Range(0, 100) < starvingChance) // High chance to eat
-                        {
-                            StartEatingBehavior();
-                        }
-                        else
-                        {
-                            ChooseOtherBehavior();
-                        }
-                    }
-                    else if (isHungry)
-                    {
-                        if (UnityEngine.Random.Range(0, 100) < hungryChance) // Moderate chance to eat
-                        {
-                            StartEatingBehavior();
-                        }
-                        else
-                        {
-                            ChooseOtherBehavior();
-                        }
-                    }
-                    else if (isPeckish)
-                    {
-                        if (UnityEngine.Random.Range(0, 100) < peckishChance) // Low chance to eat
-                        {
-                            StartEatingBehavior();
-                        }
-                        else
-                        {
-                            ChooseOtherBehavior();
-                        }
-                    }
-                    else
-                    {
-                        ChooseOtherBehavior();
-                    }
-
-                    // int cooldownTime = Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
-                    // behaviorOnCooldown = true; 
-                    // Invoke("BehavoiurCooldown", cooldownTime);
-                    }
-                    
-                }
-            }
-        }
-        else 
+        if (FleeBehaviourCheck()) // Flee
         {
             Flee(target.transform.position);
 
-            if (!TargetInRange(FlockManager.FM.viewRange)) // If they've left range we can stop fleeing 
+            // Turn off other behaviour
+            isFlocking = false;
+            isWandering = false;
+            lookingForFood = false;
+        }
+        else if (currentlyEating) // Continue to Eat
+        {
+            // Eating. Don't update behaviour. 
+        }
+        else if (EatBehaviourCheck()) // Start Eat (or look for food)
+        {
+            StartEatingBehavior();
+
+            // Stop other behaviours 
+            CancelInvoke("BehaviourCooldown");
+            isFlocking = false;
+            isWandering = false;
+        }
+        else // Movement
+        {
+            if(!behaviorOnCooldown)
             {
-                isFleeing = false;
+                ChooseMovementBehavior();
+            }
+            
+            // ELSE do not update, finish timer. 
+        }
+    }
+
+    bool FleeBehaviourCheck()
+    {
+        if (isFleeing) // Already fleeing
+        {
+            // Check if the boid should still flee
+            if (TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange))// Can still see threat - refresh timer! 
+            {
+                // Stop old timer
+                CancelInvoke("StopFleeing");
+
+                // Restart cooldown 
+                Invoke("StopFleeing", 5);
+                return true;
+            }
+            else // no immediate threat, wait for timer 
+            {
+                // Continue to flee till timer runs out
+                return true;
+            }
+        }
+        else if (CanSeeTarget() || TargetInRange(FlockManager.FM.senseRange)) // Detect Predator 
+        {
+            // Start fleeing
+            isFleeing = true; 
+            Invoke("StopFleeing", 5);
+            return true;
+        }
+        else 
+        {
+            // Not fleeing
+            return false; 
+        }
+    }
+
+    bool EatBehaviourCheck()
+    {
+        // Check if eating already
+        if (lookingForFood)
+        {
+            // Continue to look until found OR timer runs out 
+            return true;
+        }
+        else // Not already eating
+        {
+            if (isStarving)
+            {
+                if (UnityEngine.Random.Range(0, 100) < starvingChance) // High chance to eat
+                {
+                    // Start eating - start timer
+                    lookingForFood = true;
+                    Invoke("StopSearchingForFood", searchTimer);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (isHungry)
+            {
+                if (UnityEngine.Random.Range(0, 100) < hungryChance) // Moderate chance to eat
+                {
+                    // Start eating - start timer
+                    lookingForFood = true;
+                    Invoke("StopSearchingForFood", searchTimer);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (isPeckish)
+            {
+                if (UnityEngine.Random.Range(0, 100) < peckishChance) // Low chance to eat
+                {
+                    // Start eating - start timer
+                    lookingForFood = true;
+                    Invoke("StopSearchingForFood", searchTimer);
+                    return true;
+                }
+                else 
+                {
+                    return false; 
+                }
+            }
+            else // Isn't hungry, move on.
+            {
+                return false;
             }
         }
     }
+
+
     
-    private void ChooseOtherBehavior()
+    private void ChooseMovementBehavior()
     {
         int cooldownTime = UnityEngine.Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
         behaviorOnCooldown = true; 
@@ -266,9 +299,14 @@ public class Boid_script : MonoBehaviour
         behaviorOnCooldown = false;
     }
 
-    void ViewBehaviourCooldown() 
+    void StopFleeing() 
     {
-        seenTargetCooldown = false;
+        isFleeing = false;
+    }
+
+    void StopSearchingForFood()
+    {
+        lookingForFood = false;
     }
 
     // ============================================================
@@ -517,14 +555,7 @@ public class Boid_script : MonoBehaviour
 
     private void StartEatingBehavior()
     {
-        // Set bools 
-        behaviorOnCooldown = true;
-        lookingForFood = true; 
-        isFlocking = false; 
-        isWandering = false; 
-
-        Invoke("BehavoiurCooldown", 3);
-
+        // TODO: check - should only do if STARTing behaviour? 
         // Clear the current pathfinding destination
         GetComponent<NavMeshAgent>().ResetPath();
 
@@ -586,7 +617,7 @@ public class Boid_script : MonoBehaviour
                 targetGrass = null; // Reset target if no suitable grass is found
 
                 // Didn't find grass so keep moving
-                Debug.Log("Didn't find grass (A)");
+                Debug.Log("Didn't find grass - none suitable");
                 lookingForFood = false;
             }
         }
@@ -595,7 +626,7 @@ public class Boid_script : MonoBehaviour
             targetGrass = null; // Reset target if no grass is found
 
             // Didn't find grass so keep moving
-            Debug.Log("Didn't find grass (B)");
+            Debug.Log("Didn't find grass - none in range");
             lookingForFood = false;
         }
     }
@@ -607,6 +638,14 @@ public class Boid_script : MonoBehaviour
         // Check if the boid has reached the grass
         if (Vector3.Distance(transform.position, targetGrass.transform.position) < reqProxToGrass) 
         {  
+            // Stop timer for searching for food as task complete
+            CancelInvoke("StopSearchingForFood");
+            lookingForFood = false;
+
+            // Start Eating timer (also restart movement) + bool 
+            currentlyEating = true;
+            Invoke("FinishEating", 5.0f);
+
             // Arrived at grass - start eating 
             StartEating();
         }
@@ -614,19 +653,9 @@ public class Boid_script : MonoBehaviour
 
     private void StartEating()
     {
-        // Apply Bools 
-        lookingForFood = false;
-        currentlyEating = true;
-
         // Stop the Boid before starting the eating animation
         agent.isStopped = true;
 
-        // Invoke a method to resume movement after the eating animation
-        Invoke("FinishEating", 5.0f);
-    }
-
-    void FinishEating()
-    {
         if (targetGrass != null)
         {
             // Eat the grass
@@ -637,21 +666,11 @@ public class Boid_script : MonoBehaviour
             currentHunger = Mathf.Clamp(currentHunger, minHunger, maxHunger); // Clamp after eating
             displayedHunger = Mathf.RoundToInt(currentHunger);
 
-            // Set Bools 
-            currentlyEating = false;
-            behaviorOnCooldown = false; 
-
-            // Allow boid to begin moving again 
-            agent.isStopped = false; 
-
-            // Clear grass target 
-            targetGrass = null; // Clear the target after eating
         }
         else // Grass failed somehow - reset! 
         {
             // Set Bools 
             currentlyEating = false;
-            behaviorOnCooldown = false; 
 
             // Allow boid to begin moving again 
             agent.isStopped = false; 
@@ -659,6 +678,15 @@ public class Boid_script : MonoBehaviour
             // Clear grass target 
             targetGrass = null; // Clear the target after eating
         }
+    }
+
+    void FinishEating() // Invoke method
+    {
+        // Set Bools 
+        currentlyEating = false;
+
+        // Allow boid to begin moving again 
+        agent.isStopped = false; 
     }
 
 
@@ -797,6 +825,16 @@ public class Boid_script : MonoBehaviour
                             
                         }
                     }
+                }
+            }
+
+            // Draw a red line to the predator if actively fleeing because of predator visibility or proximity
+            if (isFleeing && (TargetInRange(FlockManager.FM.viewRange) || TargetInRange(FlockManager.FM.senseRange)))
+            {
+                Gizmos.color = Color.red; // Red color for threat
+                if (target != null)
+                {
+                    Gizmos.DrawLine(transform.position, target.transform.position);
                 }
             }
         }
