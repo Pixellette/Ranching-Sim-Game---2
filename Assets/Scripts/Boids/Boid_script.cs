@@ -617,7 +617,7 @@ public class Boid_script : MonoBehaviour
                 targetGrass = null; // Reset target if no suitable grass is found
 
                 // Didn't find grass so keep moving
-                Debug.Log("Didn't find grass - none suitable");
+                // Debug.Log("Didn't find grass - none suitable");
                 lookingForFood = false;
             }
         }
@@ -626,7 +626,7 @@ public class Boid_script : MonoBehaviour
             targetGrass = null; // Reset target if no grass is found
 
             // Didn't find grass so keep moving
-            Debug.Log("Didn't find grass - none in range");
+            // Debug.Log("Didn't find grass - none in range");
             lookingForFood = false;
         }
     }
@@ -710,7 +710,7 @@ public class Boid_script : MonoBehaviour
         {
             if (isFleeing)
             {
-                Debug.Log("isFleeing = true");
+                // Debug.Log("isFleeing = true");
                 animator.SetBool("isRunning", true);
                 animator.SetBool("isWalking", false);
                 animator.SetBool("isEating", false);
@@ -746,12 +746,12 @@ public class Boid_script : MonoBehaviour
         }
         else
         {
-            Debug.Log("BodyHolder '" + bodyHolderName + "' successfully found.");
+            // Debug.Log("BodyHolder '" + bodyHolderName + "' successfully found.");
         }
 
         // Check the number of children under the bodyHolder
         int totalBodies = bodyHolder.childCount;
-        Debug.Log("BodyHolder has " + totalBodies + " child objects.");
+        // Debug.Log("BodyHolder has " + totalBodies + " child objects.");
 
         // If the range is invalid or the bodyHolder doesn't have enough children, log and return
         if (totalBodies == 0 || bodyStartIndex < 0 || bodyEndIndex >= totalBodies || bodyStartIndex > bodyEndIndex)
@@ -764,18 +764,18 @@ public class Boid_script : MonoBehaviour
         int bodyCount = bodyEndIndex - bodyStartIndex + 1;
 
         // Debug log to confirm how many bodies are in the valid range
-        Debug.Log("Valid body range: " + bodyCount + " bodies between indices " + bodyStartIndex + " and " + bodyEndIndex + ".");
+        // Debug.Log("Valid body range: " + bodyCount + " bodies between indices " + bodyStartIndex + " and " + bodyEndIndex + ".");
 
         // Choose a random index within the valid range
         int randomIndex = UnityEngine.Random.Range(bodyStartIndex, bodyEndIndex + 1);
-        Debug.Log("Random body chosen at index: " + randomIndex);
+        // Debug.Log("Random body chosen at index: " + randomIndex);
 
         // Loop through the bodyHolder's children and activate the randomly chosen one
         for (int i = bodyStartIndex; i <= bodyEndIndex; i++)
         {
             bool isActive = i == randomIndex;
             bodyHolder.GetChild(i).gameObject.SetActive(isActive);
-            Debug.Log((isActive ? "Activated " : "Deactivated ") + "body at index " + i);
+            // Debug.Log((isActive ? "Activated " : "Deactivated ") + "body at index " + i);
         }
     }
 

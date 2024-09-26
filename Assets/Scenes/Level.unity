@@ -7723,11 +7723,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: numCow
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: numSheep
-      value: 100
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: cowPrefab
@@ -7739,7 +7739,11 @@ PrefabInstance:
       objectReference: {fileID: 4038172988071669232, guid: 0c29f4fe3da7ccb44a2d323ee34f717a, type: 3}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: spawnRangeCow
-      value: 58
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
+      propertyPath: spawnRangeSheep
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: cowPrefabs.Array.size

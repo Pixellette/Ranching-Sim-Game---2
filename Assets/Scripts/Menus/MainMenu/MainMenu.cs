@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
 
     public String newGameScene;
-    private AudioSource backgroundMusicAudioSource;
+    public GameObject loadingScreen;
+    public GameObject MainMenuScreen;
+    public Slider slider;
     
 
     // Start is called before the first frame update
@@ -25,8 +28,9 @@ public class MainMenu : MonoBehaviour
 
     public void NewGame()
     {
-        StopBackgroundMusic();
-        SceneManager.LoadScene(newGameScene);
+
+        // SceneManager.LoadScene(newGameScene);
+        StartCoroutine(LoadAsynchronously());
     }
 
     public void QuitGame()
@@ -34,22 +38,24 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
-    public void StopBackgroundMusic()
+
+    IEnumerator LoadAsynchronously ()
     {
-        // Find the GameObject named "BackgroundMusic" and get its AudioSource
-        GameObject backgroundMusic = GameObject.Find("BackgroundMusic");
+        AsyncOperation operation = SceneManager.LoadSceneAsync(newGameScene);
 
+        loadingScreen.SetActive(true);
+        MainMenuScreen.SetActive(false);
+        
 
-        if (backgroundMusic != null)
+        while (!operation.isDone)
         {
-            backgroundMusicAudioSource = backgroundMusic.GetComponent<AudioSource>();
+            float progress = Mathf.Clamp01(operation.progress / 0.9f);
+            // Debug.Log(progress);
 
-            if (backgroundMusicAudioSource != null)
-            {
-                // Stop the music or clear the clip before loading the new scene
-                backgroundMusicAudioSource.Stop();
-                backgroundMusicAudioSource.clip = null;  // Clear the clip if necessary
-            }
+            slider.value = progress;
+            
+
+            yield return null;
         }
     }
 }
