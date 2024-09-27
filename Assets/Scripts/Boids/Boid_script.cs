@@ -159,7 +159,7 @@ public class Boid_script : MonoBehaviour
         {
             // Eating. Don't update behaviour. 
         }
-        else if (EatBehaviourCheck()) // Start Eat (or look for food)
+        else if (EatBehaviourCheck() ) // Start Eat (or look for food)
         {
             StartEatingBehavior();
 
@@ -221,6 +221,11 @@ public class Boid_script : MonoBehaviour
             // Continue to look until found OR timer runs out 
             return true;
         }
+        else if (behaviorOnCooldown)
+        {
+            // Finish current behaviour first! 
+            return false;
+        }
         else // Not already eating
         {
             if (isStarving)
@@ -230,6 +235,7 @@ public class Boid_script : MonoBehaviour
                     // Start eating - start timer
                     lookingForFood = true;
                     Invoke("StopSearchingForFood", searchTimer);
+                    GetComponent<NavMeshAgent>().ResetPath();
                     return true;
                 }
                 else
@@ -244,6 +250,7 @@ public class Boid_script : MonoBehaviour
                     // Start eating - start timer
                     lookingForFood = true;
                     Invoke("StopSearchingForFood", searchTimer);
+                    GetComponent<NavMeshAgent>().ResetPath();
                     return true;
                 }
                 else
@@ -258,6 +265,7 @@ public class Boid_script : MonoBehaviour
                     // Start eating - start timer
                     lookingForFood = true;
                     Invoke("StopSearchingForFood", searchTimer);
+                    GetComponent<NavMeshAgent>().ResetPath();
                     return true;
                 }
                 else 
@@ -557,7 +565,7 @@ public class Boid_script : MonoBehaviour
     {
         // TODO: check - should only do if STARTing behaviour? 
         // Clear the current pathfinding destination
-        GetComponent<NavMeshAgent>().ResetPath();
+        // GetComponent<NavMeshAgent>().ResetPath();
 
         if (targetGrass == null || !targetGrass.IsTallEnough() || Vector3.Distance(transform.position, targetGrass.transform.position) > searchRadius)
         {
@@ -845,10 +853,10 @@ public class Boid_script : MonoBehaviour
             Gizmos.color = Color.cyan;
 
             // Create a sphere to represent the detection radius
-            Gizmos.DrawWireSphere(transform.position, FlockManager.FM.neighbourDistance);
+            Gizmos.DrawWireSphere(transform.position, searchRadius);
 
             // Draw lines to each nearby grass
-            Collider[] nearbyGrass = Physics.OverlapSphere(transform.position, FlockManager.FM.neighbourDistance, grassLayer);
+            Collider[] nearbyGrass = Physics.OverlapSphere(transform.position, searchRadius, grassLayer);
 
             foreach (Collider grassCollider in nearbyGrass)
             {

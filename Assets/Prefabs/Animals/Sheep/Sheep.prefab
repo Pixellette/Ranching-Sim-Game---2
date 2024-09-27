@@ -91,7 +91,7 @@ MonoBehaviour:
   peckishChance: 5
   hungryChance: 20
   starvingChance: 90
-  searchRadius: 20
+  searchRadius: 30
   reqProxToGrass: 3
   grassLayer:
     serializedVersion: 2
