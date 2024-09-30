@@ -17,6 +17,7 @@ public class Boid_script : MonoBehaviour
 
     [SerializeField] bool behaviorOnCooldown = false;
     [SerializeField] bool fleeCooldown = false; 
+    [SerializeField] bool breedable = false;
 
     [Header ("Speed settings")]
 
@@ -33,6 +34,7 @@ public class Boid_script : MonoBehaviour
         // [SerializeField] bool isEating = false; // For DEBUG only 
         [SerializeField] bool lookingForFood = false;
         [SerializeField] bool currentlyEating = false; // For anims
+        [SerializeField] bool isMating = false; // For DEBUG only 
 
 
     [Header ("Wander Settings")]
@@ -40,9 +42,12 @@ public class Boid_script : MonoBehaviour
 
     
     [Header ("Species")]
+        [SerializeField] bool isCattle;
         [SerializeField] bool isCow;
+        [SerializeField] bool isCalf;
+        [SerializeField] bool isBull;
+
         [SerializeField] bool isSheep;
-    
         [SerializeField] bool isEwe;
         [SerializeField] bool isLamb;
         [SerializeField] bool isRam;
@@ -80,6 +85,8 @@ public class Boid_script : MonoBehaviour
     [Header ("Breeding")]
         [SerializeField] bool isMateable = false;
         [SerializeField] float mateDistance = 20;
+        [SerializeField] float babyChance = 0.1f;
+        [SerializeField] int breedingCooldownTimer = 10;
 
         // TODO: 
         // // Define the range of child objects that are valid body options
@@ -118,21 +125,32 @@ public class Boid_script : MonoBehaviour
         {
             currentSpeed = walkSpeedCow;
             reqProxToGrass = 4f;
-            isCow = true;
+            isCattle = true;
             isSheep = false;
-            ChooseRandomBody(1, 13);
+
+            if (isCow) ChooseRandomBody(1, 13);
+            else if (isBull) ChooseRandomBody(1, 6);
+            else if (isCalf) ChooseRandomBody(1, 11);
+            else Debug.LogError("No gender selected! Req for variant spawning");
+            
         }
         else if (this.gameObject.CompareTag("Sheep"))
         {
             reqProxToGrass = 3f;
             currentSpeed = walkSpeedSheep;
-            isCow = false;
+            isCattle = false;
             isSheep = true;
             ChooseRandomBody(1, 3);
         }
         else
         {
             Debug.LogError("Boid has an unknown tag: " + this.gameObject.name);
+        }
+
+        if (IsFemale())
+        {
+            breedable = false;
+            Invoke("BreedingCooldown", 30);
         }
     }
 
@@ -163,6 +181,8 @@ public class Boid_script : MonoBehaviour
             isFlocking = false;
             isWandering = false;
             lookingForFood = false;
+            currentlyEating = false;
+            isMating = false; 
         }
         else if (currentlyEating) // Continue to Eat
         {
@@ -176,10 +196,46 @@ public class Boid_script : MonoBehaviour
             CancelInvoke("BehaviourCooldown");
             isFlocking = false;
             isWandering = false;
+            isMating = false;
         }
-        else if (isMateable)
+        else if (!behaviorOnCooldown && breedable && IsFemale() && isMateable && SearchForMate())
         {
-            TryToMate();
+            // Mating behaviour here 
+            // Debug.Log("Found a suitable mate");
+            isMating = true; 
+            isFlocking = false;
+            isWandering = false;
+            lookingForFood = false;
+            currentlyEating = false;
+
+            // Chance for baby 
+            if (UnityEngine.Random.Range(0,100) < babyChance)
+            {
+                Vector3 agentPosition = transform.position; // Get the agent's current position
+                NavMeshHit hit;
+
+                // Sample the closest point on the NavMesh within a certain radius
+                if (NavMesh.SamplePosition(agentPosition, out hit, 10.0f, NavMesh.AllAreas)) 
+                {
+                    string species = null; 
+                    if (isSheep) species = "sheep";
+                    else if (isCattle) species = "cattle"; 
+                    else Debug.LogError("Invalid species while creating baby");
+                    if (species != null)
+                    {
+                        Debug.Log("Baby " + species + " born!");
+                        Vector3 spawnLocation = hit.position; // Get the closest valid point on the NavMesh
+                        FlockManager.FM.SpawnAnimal(species, 2, spawnLocation); // varientIndex of 2 = baby verion of animal
+                        Invoke("BreedingCooldown", breedingCooldownTimer);
+                    }
+                    
+                }
+                else Debug.LogError("No where to spawn baby");
+            }
+
+            // wait a moment then Cont to wander? 
+            ChooseMovementBehavior();
+
         }
         else // Movement
         {
@@ -191,6 +247,8 @@ public class Boid_script : MonoBehaviour
             // ELSE do not update, finish timer. 
         }
     }
+
+    
 
     bool FleeBehaviourCheck()
     {
@@ -300,7 +358,11 @@ public class Boid_script : MonoBehaviour
         int cooldownTime = UnityEngine.Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
         behaviorOnCooldown = true; 
         Invoke("BehavoiurCooldown", cooldownTime);
+
         lookingForFood = false;
+        currentlyEating = false;
+        isMating = false; 
+
         if (UnityEngine.Random.Range(0, 100) < FlockManager.FM.flockingChance) // Apply flocking Chance. Flock
         {
             ApplyFlockingRules(Vector3.zero);
@@ -328,6 +390,20 @@ public class Boid_script : MonoBehaviour
     void StopSearchingForFood()
     {
         lookingForFood = false;
+    }
+
+    bool IsFemale()
+    {
+        if (isCow || isEwe)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    void BreedingCooldown()
+    {
+        breedable = true;
     }
 
     // ============================================================
@@ -390,12 +466,12 @@ public class Boid_script : MonoBehaviour
     {
         if(isFleeing)
         {
-            if (isCow)  currentSpeed = runSpeedCow;
+            if (isCattle)  currentSpeed = runSpeedCow;
             else if (isSheep) currentSpeed = runSpeedSheep;
         }
         else
         {
-            if (isCow)  currentSpeed = walkSpeedCow;
+            if (isCattle)  currentSpeed = walkSpeedCow;
             else if (isSheep) currentSpeed = walkSpeedSheep;
         }
 
@@ -490,7 +566,7 @@ public class Boid_script : MonoBehaviour
                         totalGroupSize++;
 
                         // Check if the species matches! 
-                        if ((this.isCow && nearbyBoid.isCow) || (this.isSheep && nearbyBoid.isSheep))
+                        if ((this.isCattle && nearbyBoid.isCattle) || (this.isSheep && nearbyBoid.isSheep))
                         {
                             // Alignment: Average the direction of nearby boids
                             alignment += nearbyBoid.transform.forward;
@@ -820,7 +896,7 @@ public class Boid_script : MonoBehaviour
         {
             return false;
         }
-        else if (currentHunger > 70) // Not hungry TODO: change later to happiness? 
+        else if (currentHunger > 90) // Not hungry TODO: change later to happiness? 
         {
             return true; 
         }
@@ -831,46 +907,59 @@ public class Boid_script : MonoBehaviour
         
     }
 
-    void TryToMate()
+    bool SearchForMate()
     {
         /*
             Look for mate 
             Check mate is mateable 
-            try to mate 
         */
+        Vector3 currentPosition = transform.position;
+        GameObject thisBoid = this.gameObject;
 
         // Check for Boids? 
         Collider[] nearbyBoids = Physics.OverlapSphere(transform.position, mateDistance, boidLayer);
+        if (nearbyBoids.Length == 0) return false;
 
         foreach (Collider boidCollider in nearbyBoids)
         {
-            if (boidCollider.gameObject != this.gameObject) // Ignore self 
+            if (boidCollider.gameObject != thisBoid)
             {
-                Vector3 directionToBoid = (boidCollider.transform.position - transform.position).normalized;
-                float distanceToBoid = Vector3.Distance(transform.position, boidCollider.transform.position);
-
-                // Check for obstacles 
-                if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, fenceLayer))
+                Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
+                if (nearbyBoid != null)
                 {
-                    Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
-                    if (nearbyBoid != null)
+                    float distanceToBoidSqr = (boidCollider.transform.position - currentPosition).sqrMagnitude;
+                    float mateDistanceSqr = mateDistance * mateDistance;
+
+                    if (distanceToBoidSqr < mateDistanceSqr &&
+                            !Physics.Raycast(currentPosition, (boidCollider.transform.position - currentPosition).normalized, Mathf.Sqrt(distanceToBoidSqr), fenceLayer))
                     {
-                        // Check Gender match up! 
-                        if (this.isSheep && nearbyBoid.isRam) // TODO: Add cow version
+                        if (IsCompatibleMate(nearbyBoid) && nearbyBoid.isMateable) // Check Gender match up! 
                         {
-                            Debug.Log("Found a mate");
-                            if (nearbyBoid.isMateable) // Are they able to mate
-                            {
-                                Debug.Log("& they can mate");
-                            }
-                            else Debug.Log("but they can't mate");
+                            return true;
                         }
-                        // else Debug.Log("Searched but no mate found");
                     }
                 }
             }
         }
+        return false;
     }
+
+    private bool IsCompatibleMate(Boid_script nearbyBoid)
+    {
+        // Sheep-Ram compatibility check
+        if (this.isSheep && nearbyBoid.isRam)
+            return true;
+
+        // Cow-Bull compatibility check
+        if (this.isCow && nearbyBoid.isBull)
+            return true;
+
+        // Add other species checks here in future 
+
+        // If no match is found, return false
+        return false;
+    }
+
 
 
     // ============================================================
@@ -910,7 +999,7 @@ public class Boid_script : MonoBehaviour
                         Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
                         if (nearbyBoid != null)
                         {
-                            if ((this.isCow && nearbyBoid.isCow) || (this.isSheep && nearbyBoid.isSheep))
+                            if ((this.isCattle && nearbyBoid.isCattle) || (this.isSheep && nearbyBoid.isSheep))
                             {
                                 // Draw a line from the current boid to the nearby boid
                                 Gizmos.DrawLine(transform.position, nearbyBoid.transform.position);
