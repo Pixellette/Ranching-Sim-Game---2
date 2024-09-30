@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -43,6 +42,10 @@ public class Boid_script : MonoBehaviour
     [Header ("Species")]
         [SerializeField] bool isCow;
         [SerializeField] bool isSheep;
+    
+        [SerializeField] bool isEwe;
+        [SerializeField] bool isLamb;
+        [SerializeField] bool isRam;
 
 
     [Header ("Hunger")]
@@ -73,6 +76,10 @@ public class Boid_script : MonoBehaviour
 
         public LayerMask grassLayer; // Layer mask to identify grass
         private Grass targetGrass; // Current target grass for the boid
+
+    [Header ("Breeding")]
+        [SerializeField] bool isMateable = false;
+        [SerializeField] float mateDistance = 20;
 
         // TODO: 
         // // Define the range of child objects that are valid body options
@@ -136,6 +143,8 @@ public class Boid_script : MonoBehaviour
 
         UpdateAnimationState();
         SetSpeed();
+        if (CanMate()) isMateable = true;
+        else isMateable = false;
     }
 
 
@@ -167,6 +176,10 @@ public class Boid_script : MonoBehaviour
             CancelInvoke("BehaviourCooldown");
             isFlocking = false;
             isWandering = false;
+        }
+        else if (isMateable)
+        {
+            TryToMate();
         }
         else // Movement
         {
@@ -740,6 +753,9 @@ public class Boid_script : MonoBehaviour
 
     
 
+    // ============================================================
+    //                       Start Up Methods
+    // ============================================================
 
     void ChooseRandomBody(int bodyStartIndex, int bodyEndIndex)
     {
@@ -784,6 +800,75 @@ public class Boid_script : MonoBehaviour
             bool isActive = i == randomIndex;
             bodyHolder.GetChild(i).gameObject.SetActive(isActive);
             // Debug.Log((isActive ? "Activated " : "Deactivated ") + "body at index " + i);
+        }
+    }
+
+
+    // ============================================================
+    //                       Breeding
+    // ============================================================
+
+    bool CanMate() 
+    {
+        /*
+            To mate a sheep needs to: 
+                - Be happy (not hungry) 
+                - Not be a baby! 
+        */
+
+        if (isLamb) // too young to breed! TODO: Add babies of other species
+        {
+            return false;
+        }
+        else if (currentHunger > 70) // Not hungry TODO: change later to happiness? 
+        {
+            return true; 
+        }
+        else // isn't lamb but is hungry
+        {
+            return false;
+        }
+        
+    }
+
+    void TryToMate()
+    {
+        /*
+            Look for mate 
+            Check mate is mateable 
+            try to mate 
+        */
+
+        // Check for Boids? 
+        Collider[] nearbyBoids = Physics.OverlapSphere(transform.position, mateDistance, boidLayer);
+
+        foreach (Collider boidCollider in nearbyBoids)
+        {
+            if (boidCollider.gameObject != this.gameObject) // Ignore self 
+            {
+                Vector3 directionToBoid = (boidCollider.transform.position - transform.position).normalized;
+                float distanceToBoid = Vector3.Distance(transform.position, boidCollider.transform.position);
+
+                // Check for obstacles 
+                if (!Physics.Raycast(transform.position, directionToBoid, distanceToBoid, fenceLayer))
+                {
+                    Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
+                    if (nearbyBoid != null)
+                    {
+                        // Check Gender match up! 
+                        if (this.isSheep && nearbyBoid.isRam) // TODO: Add cow version
+                        {
+                            Debug.Log("Found a mate");
+                            if (nearbyBoid.isMateable) // Are they able to mate
+                            {
+                                Debug.Log("& they can mate");
+                            }
+                            else Debug.Log("but they can't mate");
+                        }
+                        // else Debug.Log("Searched but no mate found");
+                    }
+                }
+            }
         }
     }
 
