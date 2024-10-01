@@ -167,7 +167,7 @@ public class FlockManager : MonoBehaviour
                 totalSheep--;
             }
         }
-        else if (species.ToLower() == "cow")
+        else if (species.ToLower() == "cattle")
         {
             if (allCows.Remove(animal))
             {

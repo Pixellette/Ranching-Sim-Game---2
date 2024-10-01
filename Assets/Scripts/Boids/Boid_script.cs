@@ -87,11 +87,9 @@ public class Boid_script : MonoBehaviour
         [SerializeField] float mateDistance = 20;
         [SerializeField] float babyChance = 0.1f;
         [SerializeField] int breedingCooldownTimer = 10;
+        [SerializeField] bool stillGrowing = false; // Is the boid still a growing baby
 
-        // TODO: 
-        // // Define the range of child objects that are valid body options
-        // [SerializeField] private int bodyStartIndex = 1;
-        // [SerializeField] private int bodyEndIndex = 14; // Adjust this to match the index range of the body objects
+
 
     [Header ("Other Settings")]
         // Name of the child object that contains the body versions
@@ -122,7 +120,6 @@ public class Boid_script : MonoBehaviour
 
         currentHunger = UnityEngine.Random.Range(70,100);
         displayedHunger = Mathf.RoundToInt(currentHunger);
-
 
         if (this.gameObject.CompareTag("Cow"))
         {
@@ -155,6 +152,13 @@ public class Boid_script : MonoBehaviour
             breedable = false;
             Invoke("BreedingCooldown", 30);
         }
+
+        if (isCalf || isLamb)
+        {
+            // Start a timer
+            stillGrowing = true;
+            Invoke("StopGrowing", 50);
+        }
     }
 
     void Update()
@@ -166,6 +170,12 @@ public class Boid_script : MonoBehaviour
         SetSpeed();
         if (CanMate()) isMateable = true;
         else isMateable = false;
+
+        if ((isCalf || isLamb) && !stillGrowing)
+        {
+            // Have finished growing! 
+            GrowUp();
+        }
     }
 
 
@@ -956,6 +966,35 @@ public class Boid_script : MonoBehaviour
 
         // wait a moment then Cont to wander? 
         ChooseMovementBehavior();
+    }
+
+    void StopGrowing()
+    {
+        stillGrowing = false;
+        Debug.Log("A baby should now be grown up");
+    }
+
+    void GrowUp()
+    {
+        /*
+            Check species 
+            spawn adult version at location 
+            destroy self 
+        */
+        int gender = 1;
+        if (UnityEngine.Random.Range(0,100) < 20) gender = 0;
+
+        if (isLamb)
+        {
+            FlockManager.FM.SpawnAnimal("sheep", gender, transform.position);
+            FlockManager.FM.RemoveAnimal(gameObject, "sheep");
+        }
+        else if (isCalf)
+        {
+            FlockManager.FM.SpawnAnimal("cattle", gender, transform.position);
+            FlockManager.FM.RemoveAnimal(gameObject, "cattle");
+        }
+        else Debug.LogError("Couldn't match baby type to spawn correct adult version");
     }
 
 
