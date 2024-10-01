@@ -60,6 +60,7 @@ MonoBehaviour:
     m_Bits: 1024
   behaviorOnCooldown: 0
   fleeCooldown: 0
+  breedable: 0
   currentSpeed: 0
   walkSpeedSheep: 1.5
   walkSpeedCow: 0
@@ -70,8 +71,12 @@ MonoBehaviour:
   isFlocking: 0
   lookingForFood: 0
   currentlyEating: 0
+  isMating: 0
   wanderTarget: {x: 0, y: 0, z: 0}
+  isCattle: 0
   isCow: 0
+  isCalf: 0
+  isBull: 0
   isSheep: 1
   isEwe: 1
   isLamb: 0
@@ -82,7 +87,7 @@ MonoBehaviour:
   displayedHunger: 0
   maxHunger: 100
   minHunger: 0
-  hungerRate: 0.5
+  hungerRate: 0.4
   eatAmount: 1
   hungerAdded: 30
   isPeckish: 0
@@ -99,7 +104,16 @@ MonoBehaviour:
   grassLayer:
     serializedVersion: 2
     m_Bits: 512
+  isMateable: 0
+  mateDistance: 20
+  babyChance: 0.1
+  breedingCooldownTimer: 10
+  stillGrowing: 0
+  ageUpTimer: 50
+  starvingToDeath: 0
+  starveTime: 60
   bodyHolderName: BodyHolder
+  fenceAvoidanceNum: 1.5
 --- !u!195 &5991968694584195818
 NavMeshAgent:
   m_ObjectHideFlags: 0

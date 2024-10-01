@@ -91,7 +91,7 @@ MonoBehaviour:
   minHunger: 0
   hungerRate: 0.5
   eatAmount: 1
-  hungerAdded: 30
+  hungerAdded: 35
   isPeckish: 0
   isHungry: 0
   isStarving: 1
@@ -110,9 +110,12 @@ MonoBehaviour:
   mateDistance: 20
   babyChance: 0.1
   breedingCooldownTimer: 10
+  stillGrowing: 0
+  ageUpTimer: 50
+  starvingToDeath: 0
+  starveTime: 60
   bodyHolderName: BodyHolder
   fenceAvoidanceNum: 1.5
-  raycastHeightOffset: 0.5
 --- !u!195 &1573858704572849225
 NavMeshAgent:
   m_ObjectHideFlags: 0

@@ -7895,7 +7895,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grassPrefab: {fileID: 5194954685591448675, guid: 8f4e70f10936ddf46b347e4f8a43538c, type: 3}
-  numberOfGrass: 500
+  numberOfGrass: 300
   terrain: {fileID: 1970145886}
   grassOffsetHeight: 0.01
   grassParent: {fileID: 1500853949}
@@ -10283,11 +10283,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: numCow
-      value: 50
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: numSheep
-      value: 100
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: cowPrefab
@@ -10818,7 +10818,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6562201025007349302, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 109.3
+      value: 107.6
       objectReference: {fileID: 0}
     - target: {fileID: 6562201025007349302, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10826,7 +10826,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6562201025007349302, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 101.8
+      value: 153.5
       objectReference: {fileID: 0}
     - target: {fileID: 6562201025007349302, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: m_LocalRotation.w

@@ -26,6 +26,10 @@ public class FlockManager : MonoBehaviour
         public int totalSheep;
         public int totalAnimals; // Total of all animals (cows + sheep)
 
+    [Header("Population Limits")]
+        public int maxSheepPopulation = 600;
+        public int maxCowPopulation = 400;
+
 
     [Header("Behaviour Settings")]
         [Range(1, 5)]
@@ -122,10 +126,12 @@ public class FlockManager : MonoBehaviour
 
         if (species.ToLower() == "sheep")
         {
+            if (totalSheep >= maxSheepPopulation) return;  // Stop spawning if max population is reached
             variants = sheepVariants;
         }
         else if (species.ToLower() == "cattle")
         {
+            if (totalCows >= maxCowPopulation) return;  // Stop spawning if max population is reached
             variants = cowVariants;
         }
         else
@@ -137,7 +143,6 @@ public class FlockManager : MonoBehaviour
         GameObject selectedPrefab = variants[variantIndex];
         GameObject newAnimal = Instantiate(selectedPrefab, location, Quaternion.identity);
 
-        // Assign the new animal to its respective parent and list
         if (species.ToLower() == "sheep")
         {
             newAnimal.transform.parent = sheepParent.transform;
@@ -151,9 +156,9 @@ public class FlockManager : MonoBehaviour
             totalCows++;
         }
 
-        // Update the total number of all animals
         totalAnimals = totalCows + totalSheep;
     }
+
 
 
     // Function to remove an animal (when it dies or is removed from the game)

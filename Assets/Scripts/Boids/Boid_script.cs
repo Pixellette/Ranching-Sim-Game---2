@@ -82,13 +82,17 @@ public class Boid_script : MonoBehaviour
         public LayerMask grassLayer; // Layer mask to identify grass
         private Grass targetGrass; // Current target grass for the boid
 
-    [Header ("Breeding")]
+    [Header ("Breeding Settings")]
         [SerializeField] bool isMateable = false;
         [SerializeField] float mateDistance = 20;
         [SerializeField] float babyChance = 0.1f;
-        [SerializeField] int breedingCooldownTimer = 10;
+        [SerializeField] int breedingCooldownTimer = 60;
         [SerializeField] bool stillGrowing = false; // Is the boid still a growing baby
+        [SerializeField] float ageUpTimer = 50;
 
+    [Header ("Death Settings")] // Will add other ways to die in future! 
+        [SerializeField] bool starvingToDeath = false;
+        [SerializeField] float starveTime = 120;
 
 
     [Header ("Other Settings")]
@@ -147,23 +151,24 @@ public class Boid_script : MonoBehaviour
             Debug.LogError("Boid has an unknown tag: " + this.gameObject.name);
         }
 
-        if (IsFemale())
+        if (IsFemale()) // don't breed immediately
         {
             breedable = false;
-            Invoke("BreedingCooldown", 30);
+            Invoke("BreedingCooldown", 80);
         }
 
-        if (isCalf || isLamb)
+        if (isCalf || isLamb) // Start growing up
         {
             // Start a timer
             stillGrowing = true;
-            Invoke("StopGrowing", 50);
+            Invoke("StopGrowing", ageUpTimer);
         }
     }
 
     void Update()
     {
         UpdateHungerState();
+        CheckStarving();
         ChooseBehaviour();
 
         UpdateAnimationState();
@@ -173,7 +178,6 @@ public class Boid_script : MonoBehaviour
 
         if ((isCalf || isLamb) && !stillGrowing)
         {
-            // Have finished growing! 
             GrowUp();
         }
     }
@@ -859,7 +863,7 @@ public class Boid_script : MonoBehaviour
 
 
     // ============================================================
-    //                       Breeding
+    //                       Breeding Methods
     // ============================================================
 
     bool CanMate() 
@@ -868,7 +872,7 @@ public class Boid_script : MonoBehaviour
         {
             return false;
         }
-        else if (currentHunger > 85) // Not hungry TODO: change later to happiness? 
+        else if (currentHunger > 65) // Not hungry TODO: change later to happiness? 
         {
             return true; 
         }
@@ -995,6 +999,34 @@ public class Boid_script : MonoBehaviour
             FlockManager.FM.RemoveAnimal(gameObject, "cattle");
         }
         else Debug.LogError("Couldn't match baby type to spawn correct adult version");
+    }
+
+
+    // ============================================================
+    //                       Death Methods
+    // ============================================================
+
+    void StarvingTimer() // Invoke Method
+    {
+        // Animal dies now
+        Debug.Log("Animal Death");
+        if(isSheep) FlockManager.FM.RemoveAnimal(gameObject, "sheep");
+        else if (isCattle) FlockManager.FM.RemoveAnimal(gameObject, "cattle");
+        else Debug.LogError("Couldn't find species for animal starving death");
+    }
+
+    void CheckStarving()
+    {
+        if (!starvingToDeath && currentHunger == 0)
+        {
+            starvingToDeath = true; 
+            Invoke("StarvingTimer", starveTime);
+        }
+        else if (starvingToDeath && currentHunger > 0)
+        {
+            CancelInvoke("StarvingTimer");
+            starvingToDeath = false;
+        }
     }
 
 
