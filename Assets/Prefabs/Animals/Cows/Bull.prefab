@@ -62,6 +62,7 @@ MonoBehaviour:
     m_Bits: 1024
   behaviorOnCooldown: 0
   fleeCooldown: 0
+  breedable: 0
   currentSpeed: 0
   walkSpeedSheep: 0
   walkSpeedCow: 3.5
@@ -72,6 +73,7 @@ MonoBehaviour:
   isFlocking: 0
   lookingForFood: 0
   currentlyEating: 0
+  isMating: 0
   wanderTarget: {x: 0, y: 0, z: 0}
   isCattle: 1
   isCow: 0
@@ -106,7 +108,11 @@ MonoBehaviour:
     m_Bits: 512
   isMateable: 0
   mateDistance: 20
+  babyChance: 0.1
+  breedingCooldownTimer: 10
   bodyHolderName: BodyHolder
+  fenceAvoidanceNum: 1.5
+  raycastHeightOffset: 0.5
 --- !u!195 &1573858704572849225
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -126,7 +132,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 1.7
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!54 &4714565325309843445
@@ -344,7 +350,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7054367303631742640, guid: 2d3b0610fdd9d1b43be06d09f89e8ca9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.665
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7054367303631742640, guid: 2d3b0610fdd9d1b43be06d09f89e8ca9, type: 3}
       propertyPath: m_LocalPosition.z

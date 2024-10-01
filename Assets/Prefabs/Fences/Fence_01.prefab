@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1352571872739082616}
   - component: {fileID: 1352571872741949790}
   - component: {fileID: 1352571872740983710}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TFP_Fence_04A_Module_1_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,9 +95,9 @@ GameObject:
   - component: {fileID: 1352571872724817372}
   - component: {fileID: 3813021826864086627}
   - component: {fileID: 6102277568692094817}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Fence_01
-  m_TagString: Untagged
+  m_TagString: Fence
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -161,8 +161,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.13968307, y: 1.3248888, z: 3.0693073}
-  m_Center: {x: -0.003095895, y: 0.4624446, z: 1.4653196}
+  m_Size: {x: 0.13968307, y: 2.5, z: 3.0693073}
+  m_Center: {x: -0.003095895, y: -0.1, z: 1.4653196}
 --- !u!208 &6102277568692094817
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -173,11 +173,11 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.1, y: 1, z: 1.5}
+  m_Extents: {x: 0.1, y: 1.1, z: 1.575}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0.1, z: 1.4}
+  m_Center: {x: 0, y: 0.1, z: 1.5}
   m_TimeToStationary: 0.5
 --- !u!1 &1352571872739056990
 GameObject:
@@ -190,7 +190,7 @@ GameObject:
   - component: {fileID: 1352571872739082622}
   - component: {fileID: 1352571872741949788}
   - component: {fileID: 1352571872740983708}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TFP_Fence_04A_Module_1_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

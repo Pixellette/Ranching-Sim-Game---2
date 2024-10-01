@@ -144,7 +144,7 @@ public class FlockManager : MonoBehaviour
             allSheep.Add(newAnimal);
             totalSheep++;
         }
-        else if (species.ToLower() == "cow")
+        else if (species.ToLower() == "cattle")
         {
             newAnimal.transform.parent = cowParent.transform;
             allCows.Add(newAnimal);

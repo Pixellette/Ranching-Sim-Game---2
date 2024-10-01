@@ -93,8 +93,11 @@ public class Boid_script : MonoBehaviour
         // [SerializeField] private int bodyStartIndex = 1;
         // [SerializeField] private int bodyEndIndex = 14; // Adjust this to match the index range of the body objects
 
+    [Header ("Other Settings")]
         // Name of the child object that contains the body versions
         [SerializeField] private string bodyHolderName = "BodyHolder";
+
+        [SerializeField] float fenceAvoidanceNum = 1.5f;
         
 
 
@@ -200,42 +203,7 @@ public class Boid_script : MonoBehaviour
         }
         else if (!behaviorOnCooldown && breedable && IsFemale() && isMateable && SearchForMate())
         {
-            // Mating behaviour here 
-            // Debug.Log("Found a suitable mate");
-            isMating = true; 
-            isFlocking = false;
-            isWandering = false;
-            lookingForFood = false;
-            currentlyEating = false;
-
-            // Chance for baby 
-            if (UnityEngine.Random.Range(0,100) < babyChance)
-            {
-                Vector3 agentPosition = transform.position; // Get the agent's current position
-                NavMeshHit hit;
-
-                // Sample the closest point on the NavMesh within a certain radius
-                if (NavMesh.SamplePosition(agentPosition, out hit, 10.0f, NavMesh.AllAreas)) 
-                {
-                    string species = null; 
-                    if (isSheep) species = "sheep";
-                    else if (isCattle) species = "cattle"; 
-                    else Debug.LogError("Invalid species while creating baby");
-                    if (species != null)
-                    {
-                        Debug.Log("Baby " + species + " born!");
-                        Vector3 spawnLocation = hit.position; // Get the closest valid point on the NavMesh
-                        FlockManager.FM.SpawnAnimal(species, 2, spawnLocation); // varientIndex of 2 = baby verion of animal
-                        Invoke("BreedingCooldown", breedingCooldownTimer);
-                    }
-                    
-                }
-                else Debug.LogError("No where to spawn baby");
-            }
-
-            // wait a moment then Cont to wander? 
-            ChooseMovementBehavior();
-
+            ApplyMatingBehaviour();
         }
         else // Movement
         {
@@ -420,7 +388,7 @@ public class Boid_script : MonoBehaviour
         if (Physics.Raycast(agent.transform.position, direction, out hit, distance, fenceLayer))
         {
             // Calculate the closest point on the obstacle's surface to the agent
-            Vector3 closestPoint = hit.point - direction * agent.radius;
+            Vector3 closestPoint = hit.point - direction * fenceAvoidanceNum;
 
             // Move to the closest point on the obstacle edge
             agent.SetDestination(closestPoint);
@@ -886,21 +854,15 @@ public class Boid_script : MonoBehaviour
 
     bool CanMate() 
     {
-        /*
-            To mate a sheep needs to: 
-                - Be happy (not hungry) 
-                - Not be a baby! 
-        */
-
-        if (isLamb) // too young to breed! TODO: Add babies of other species
+        if (isLamb || isCalf) // too young to breed! TODO: Add babies of other species
         {
             return false;
         }
-        else if (currentHunger > 90) // Not hungry TODO: change later to happiness? 
+        else if (currentHunger > 85) // Not hungry TODO: change later to happiness? 
         {
             return true; 
         }
-        else // isn't lamb but is hungry
+        else // isn't baby but is hungry
         {
             return false;
         }
@@ -909,10 +871,6 @@ public class Boid_script : MonoBehaviour
 
     bool SearchForMate()
     {
-        /*
-            Look for mate 
-            Check mate is mateable 
-        */
         Vector3 currentPosition = transform.position;
         GameObject thisBoid = this.gameObject;
 
@@ -944,7 +902,7 @@ public class Boid_script : MonoBehaviour
         return false;
     }
 
-    private bool IsCompatibleMate(Boid_script nearbyBoid)
+    bool IsCompatibleMate(Boid_script nearbyBoid)
     {
         // Sheep-Ram compatibility check
         if (this.isSheep && nearbyBoid.isRam)
@@ -960,6 +918,45 @@ public class Boid_script : MonoBehaviour
         return false;
     }
 
+    void ApplyMatingBehaviour()
+    {
+        // Mating behaviour here 
+        // Debug.Log("Found a suitable mate");
+        isMating = true; 
+        isFlocking = false;
+        isWandering = false;
+        lookingForFood = false;
+        currentlyEating = false;
+
+        // Chance for baby 
+        if (UnityEngine.Random.Range(0,100) < babyChance)
+        {
+            Vector3 agentPosition = transform.position; // Get the agent's current position
+            NavMeshHit hit;
+
+            // Sample the closest point on the NavMesh within a certain radius
+            if (NavMesh.SamplePosition(agentPosition, out hit, 10.0f, NavMesh.AllAreas)) 
+            {
+                string species = null; 
+                if (isSheep) species = "sheep";
+                else if (isCattle) species = "cattle"; 
+                else Debug.LogError("Invalid species while creating baby");
+                if (species != null)
+                {
+                    Debug.Log("Baby " + species + " born!");
+                    Vector3 spawnLocation = hit.position; // Get the closest valid point on the NavMesh
+                    FlockManager.FM.SpawnAnimal(species, 2, spawnLocation); // varientIndex of 2 = baby verion of animal
+                    breedable = false;
+                    Invoke("BreedingCooldown", breedingCooldownTimer);
+                }
+                
+            }
+            else Debug.LogError("No where to spawn baby");
+        }
+
+        // wait a moment then Cont to wander? 
+        ChooseMovementBehavior();
+    }
 
 
     // ============================================================
