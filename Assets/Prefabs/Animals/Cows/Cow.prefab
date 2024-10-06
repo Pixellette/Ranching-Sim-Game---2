@@ -90,7 +90,7 @@ MonoBehaviour:
   minHunger: 0
   hungerRate: 0.5
   eatAmount: 1
-  hungerAdded: 35
+  hungerAdded: 30
   isPeckish: 0
   isHungry: 0
   isStarving: 1

@@ -16,6 +16,12 @@ public class PlayerMovement : MonoBehaviour
 
     Vector3 velocity;
     bool isGrounded;
+
+    // public Boid_script boid; // Reference to the boid script where ForceFlee is implemented
+    [SerializeField] float  fleeDuration = 5;
+    [SerializeField] float fleeRadius = 10f;  // Radius within which Boids will flee
+    [SerializeField] LayerMask boidLayerMask; // LayerMask for Boids
+
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
@@ -52,5 +58,36 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime);
+
+        // Check for right mouse click
+        if (Input.GetMouseButtonDown(1))
+        {
+            // Trigger the ForceFlee method
+            TriggerFlee();
+        }
+    }
+
+
+    void TriggerFlee()
+    {
+        // Get all colliders in the specified radius that are part of the boid layer
+        Collider[] boidsInRadius = Physics.OverlapSphere(transform.position, fleeRadius, boidLayerMask);
+
+        // Loop through each collider and apply ForceFlee to the boids
+        foreach (Collider col in boidsInRadius)
+        {
+            Boid_script boid = col.GetComponent<Boid_script>();
+            if (boid != null)
+            {
+                boid.ForceFlee(fleeDuration);
+            }
+        }
+    }
+
+    // Optionally, visualize the radius in the editor for easier tuning
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, fleeRadius);
     }
 }

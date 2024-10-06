@@ -388,6 +388,26 @@ public class Boid_script : MonoBehaviour
         breedable = true;
     }
 
+    public void ForceFlee(float fleeDuration)
+    {
+        // Ensure that fleeing behavior is prioritized
+        isFleeing = true;
+
+        // Reset any other behaviors
+        isFlocking = false;
+        isWandering = false;
+        lookingForFood = false;
+        currentlyEating = false;
+        isMating = false;
+        CancelInvoke("BehaviourCooldown"); // Cancel other behaviors' cooldown timers
+
+        // Start or reset the fleeing timer
+        CancelInvoke("StopFleeing");
+        Invoke("StopFleeing", fleeDuration);
+    }
+
+
+
     // ============================================================
     //                         Navigation Methods
     // ============================================================
@@ -957,11 +977,16 @@ public class Boid_script : MonoBehaviour
                 else Debug.LogError("Invalid species while creating baby");
                 if (species != null)
                 {
-                    Debug.Log("Baby " + species + " born!");
                     Vector3 spawnLocation = hit.position; // Get the closest valid point on the NavMesh
                     FlockManager.FM.SpawnAnimal(species, 2, spawnLocation); // varientIndex of 2 = baby verion of animal
                     breedable = false;
                     Invoke("BreedingCooldown", breedingCooldownTimer);
+                    if(isSheep && UnityEngine.Random.Range(0,10) <= 5) // Sheep often have twins
+                    {
+                        FlockManager.FM.SpawnAnimal(species, 2, spawnLocation); // varientIndex of 2 = baby verion of animal
+                        Debug.Log("TWIN Baby " + species + " born!");
+                    }
+                    else Debug.Log("Baby " + species + " born!");
                 }
                 
             }

@@ -87,7 +87,7 @@ MonoBehaviour:
   displayedHunger: 0
   maxHunger: 100
   minHunger: 0
-  hungerRate: 0.4
+  hungerRate: 0.3
   eatAmount: 1
   hungerAdded: 30
   isPeckish: 0
