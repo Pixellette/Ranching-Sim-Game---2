@@ -58,6 +58,9 @@ MonoBehaviour:
   fenceLayer:
     serializedVersion: 2
     m_Bits: 1024
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
   behaviorOnCooldown: 0
   fleeCooldown: 0
   breedable: 0
