@@ -1513,7 +1513,7 @@ GameObject:
   - component: {fileID: 273308276}
   - component: {fileID: 273308275}
   m_Layer: 5
-  m_Name: Image
+  m_Name: ShoutIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1531,11 +1531,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 467946847}
+  m_Father: {fileID: 1152338696}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -38, y: 37.0531}
+  m_AnchoredPosition: {x: -30, y: 29.053131}
   m_SizeDelta: {x: 41.6397, y: 41.6397}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &273308275
@@ -2875,8 +2875,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 972922570}
-  - {fileID: 273308274}
+  - {fileID: 1152338696}
   m_Father: {fileID: 648490008}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6013,7 +6012,7 @@ GameObject:
   - component: {fileID: 972922572}
   - component: {fileID: 972922571}
   m_Layer: 5
-  m_Name: Image
+  m_Name: ShoutBkgd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6031,11 +6030,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 467946847}
+  m_Father: {fileID: 1152338696}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -37.463806, y: 37.463776}
+  m_AnchoredPosition: {x: -29.463806, y: 29.463806}
   m_SizeDelta: {x: 58.927612, y: 58.927597}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &972922571
@@ -6660,6 +6659,43 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a364ddeffc797439f2a5721660b0e6, type: 3}
+--- !u!1 &1152338695
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1152338696}
+  m_Layer: 5
+  m_Name: ShoutVisual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1152338696
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152338695}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 972922570}
+  - {fileID: 273308274}
+  m_Father: {fileID: 467946847}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 381.0362, y: -198.03622}
+  m_SizeDelta: {x: 58.927612, y: 58.927612}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1163544215 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4696216175943693753, guid: c31bf8ec8e29cd74f9fb9a970fde7a53, type: 3}
@@ -10239,6 +10275,8 @@ MonoBehaviour:
   minZoom: 20
   buildModeUIPanel: {fileID: 671245596}
   gameplayUIPanel: {fileID: 467946846}
+  placementModeButton: {fileID: 1557167233}
+  deletionModeButton: {fileID: 1442988743}
 --- !u!4 &1819805312
 Transform:
   m_ObjectHideFlags: 0

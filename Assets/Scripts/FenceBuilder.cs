@@ -1,29 +1,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class FenceBuilder : MonoBehaviour
 {
     [Header("Fence Settings")]
-    public GameObject fencePrefab;
-    public GameObject ghostFencePrefab;
-    public LayerMask groundLayer;
-    public LayerMask fenceLayer;
-    public float fenceSegmentLength = 1.0f;
+        public GameObject fencePrefab;
+        public GameObject ghostFencePrefab;
+        public LayerMask groundLayer;
+        public LayerMask fenceLayer;
+        public float fenceSegmentLength = 1.0f;
 
     [Header("Player and Camera Settings")]
-    public GameObject playerBody;
-    public Camera overheadCamera;
-    public Camera playerCamera;
-    public float moveSpeed = 20f;
-    public float overheadHeight = 20f;
-    public float zoomSpeed = 20f;
-    public float maxZoom = 100f;
-    public float minZoom = 20f;
+        public GameObject playerBody;
+        public Camera overheadCamera;
+        public Camera playerCamera;
+        public float moveSpeed = 20f;
+        public float overheadHeight = 20f;
+        public float zoomSpeed = 20f;
+        public float maxZoom = 100f;
+        public float minZoom = 20f;
 
     [Header("UI Panels")]
-    public GameObject buildModeUIPanel; // UI Panel for Build Mode
-    public GameObject gameplayUIPanel;  // UI Panel for Normal Gameplay
+        public GameObject buildModeUIPanel; // UI Panel for Build Mode
+        public GameObject gameplayUIPanel;  // UI Panel for Normal Gameplay
+
+    [Header("UI Buttons")]
+        public Button placementModeButton;
+        public Button deletionModeButton;
+
 
 
     // Hidden Variables 
@@ -48,6 +54,7 @@ public class FenceBuilder : MonoBehaviour
         // Ensure that the correct UI panels are initially visible
         buildModeUIPanel.SetActive(false);
         gameplayUIPanel.SetActive(true);
+        UpdateButtonColors();
     }
 
     void Update()
@@ -75,6 +82,7 @@ public class FenceBuilder : MonoBehaviour
         isPlacementMode = true;
         ghostFenceSegment.SetActive(true);
         selectedFences.Clear(); // Clear any selections if switching from delete mode
+        UpdateButtonColors();
         Debug.Log("Switched to Placement Mode");
     }
 
@@ -83,6 +91,7 @@ public class FenceBuilder : MonoBehaviour
     {
         isPlacementMode = false;
         ghostFenceSegment.SetActive(false);
+        UpdateButtonColors();
         Debug.Log("Switched to Deletion Mode");
     }
 
@@ -238,4 +247,25 @@ public class FenceBuilder : MonoBehaviour
             }
         }
     }
+
+
+    void UpdateButtonColors()
+    {
+        Color activeColor = Color.white; // Light color for active state
+        Color inactiveColor = Color.gray; // Dark color for inactive state
+
+        if (isPlacementMode)
+        {
+            placementModeButton.GetComponent<Image>().color = activeColor;
+            deletionModeButton.GetComponent<Image>().color = inactiveColor;
+        }
+        else
+        {
+            placementModeButton.GetComponent<Image>().color = inactiveColor;
+            deletionModeButton.GetComponent<Image>().color = activeColor;
+        }
+    }
+
+
+
 }
