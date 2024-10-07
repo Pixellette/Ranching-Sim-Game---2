@@ -22,6 +22,9 @@ public class FenceBuilder : MonoBehaviour
         public float maxZoom = 100f;
         public float minZoom = 20f;
 
+    // [Header("Player Settings")]
+    //     [SerializeField] private GameObject player;
+
     [Header("UI Panels")]
         public GameObject buildModeUIPanel; // UI Panel for Build Mode
         public GameObject gameplayUIPanel;  // UI Panel for Normal Gameplay
@@ -95,27 +98,37 @@ public class FenceBuilder : MonoBehaviour
         Debug.Log("Switched to Deletion Mode");
     }
 
+    // Toggle Build Mode
     void ToggleBuildMode()
     {
         isBuildModeActive = !isBuildModeActive;
 
         if (isBuildModeActive)
         {
-            PositionOverheadCamera();
+            PositionOverheadCamera();  // Set the initial position based on the player
             overheadCamera.gameObject.SetActive(true);
             playerCamera.gameObject.SetActive(false);
-            playerBody.GetComponent<CharacterController>().enabled = false;
+            
+            // Set PlayerMovements to build mode
+            playerBody.GetComponent<PlayerMovement>().inBuildMode = true;
+
             ghostFenceSegment.SetActive(isPlacementMode);
 
             // Enable Build Mode UI and disable Gameplay UI
             buildModeUIPanel.SetActive(true);
             gameplayUIPanel.SetActive(false);
+
+            // Pause the game (excluding UI and overhead camera)
+            Time.timeScale = 0f;
         }
         else
         {
             overheadCamera.gameObject.SetActive(false);
             playerCamera.gameObject.SetActive(true);
-            playerBody.GetComponent<CharacterController>().enabled = true;
+            
+            // Set PlayerMovements to normal mode
+            playerBody.GetComponent<PlayerMovement>().inBuildMode = false;
+
             ghostFenceSegment.SetActive(false);
             placementPoint = null;
             selectedFences.Clear();
@@ -123,39 +136,107 @@ public class FenceBuilder : MonoBehaviour
             // Disable Build Mode UI and enable Gameplay UI
             buildModeUIPanel.SetActive(false);
             gameplayUIPanel.SetActive(true);
+
+            // Resume the game
+            Time.timeScale = 1f;
         }
     }
 
+
     void PositionOverheadCamera()
     {
+        // Set the overhead camera position to match the player's current position
         Vector3 playerPosition = playerBody.transform.position;
-        overheadCamera.transform.position = new Vector3(playerPosition.x, playerPosition.y + overheadHeight, playerPosition.z);
+        overheadCamera.transform.position = new Vector3(playerPosition.x, overheadHeight, playerPosition.z);
         overheadCamera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
     void HandleBuildModeInput()
     {
-        // Camera movement
-        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        overheadCamera.transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
-
-        // Zoom in and out
-        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-        float zoomAmount = scrollInput * zoomSpeed * Time.deltaTime;
-        Vector3 newPosition = overheadCamera.transform.position + new Vector3(0, zoomAmount, 0);
-        newPosition.y = Mathf.Clamp(newPosition.y, minZoom, maxZoom);
-        overheadCamera.transform.position = newPosition;
-
-        if (isPlacementMode)
+        // Ensure the camera only moves in build mode, without any player input interference
+        if (isBuildModeActive)
         {
-            UpdateGhostFence();
+            // Camera movement using WASD keys (independent of player)
+            float moveX = 0f;
+            float moveZ = 0f;
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetKey(KeyCode.W))
             {
-                PlaceFence();
+                moveZ = 1f;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                moveZ = -1f;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                moveX = -1f;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                moveX = 1f;
+            }
+
+            // Calculate movement vector
+            Vector3 move = new Vector3(moveX, 0, moveZ).normalized * moveSpeed * Time.unscaledDeltaTime;
+
+            // Apply movement directly to the camera
+            overheadCamera.transform.position += move;
+
+            // Zoom in and out using R/F keys and mouse scroll wheel
+            float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+            float zoomInput = 0;
+
+            if (Input.GetKey(KeyCode.F))
+            {
+                zoomInput = 1;
+            }
+            else if (Input.GetKey(KeyCode.R))
+            {
+                zoomInput = -1;
+            }
+
+            // Calculate and apply zoom amount
+            float zoomAmount = (scrollInput + zoomInput) * zoomSpeed * Time.unscaledDeltaTime;
+            Vector3 newPosition = overheadCamera.transform.position + new Vector3(0, zoomAmount, 0);
+            newPosition.y = Mathf.Clamp(newPosition.y, minZoom, maxZoom);
+            overheadCamera.transform.position = newPosition;
+
+            // If in placement mode, handle ghost fence placement and rotation
+            if (isPlacementMode)
+            {
+                UpdateGhostFence();
+
+                // Rotate the fence using Q and E keys
+                if (Input.GetKey(KeyCode.Q))
+                {
+                    currentRotation -= 90f * Time.unscaledDeltaTime;
+                }
+                if (Input.GetKey(KeyCode.E))
+                {
+                    currentRotation += 90f * Time.unscaledDeltaTime;
+                }
+
+                // Apply rotation to the ghost fence
+                ghostFenceSegment.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+
+                // Place Fence on Left Click
+                if (Input.GetMouseButtonDown(0))
+                {
+                    PlaceFence();
+                }
+            }
+            else
+            {
+                HandleFenceSelection();
             }
         }
     }
+
+
+
+
+
 
     void HandleFenceSelection()
     {
