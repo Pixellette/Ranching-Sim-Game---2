@@ -111,6 +111,7 @@ public class Boid_script : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+
         animator = GetComponentInChildren<Animator>();
         // animator = transform.Find("TFP_Sheep_01A").GetComponent<Animator>();
         if (animator == null)
@@ -119,6 +120,20 @@ public class Boid_script : MonoBehaviour
         }
 
         target = GameObject.FindWithTag("Predator");
+
+        // Set up NavMeshAgent settings to utilize Unity's built-in slope alignment
+        agent.updatePosition = true;     // Let the agent manage position updates
+        agent.updateRotation = true;     // Let the agent rotate to match direction
+        agent.updateUpAxis = true;       // Allow the agent to update the up-axis to align with the terrain
+
+        // Setting Rigidbody to use gravity and kinematic
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody>();
+        }
+        rb.useGravity = true;
+        rb.isKinematic = true;
 
         boidLayer = LayerMask.GetMask("Boid");
         nonBoidLayer = ~boidLayer; 
@@ -175,7 +190,7 @@ public class Boid_script : MonoBehaviour
         UpdateAnimationState();
         SetSpeed();
 
-        AlignWithTerrainAndDirection();  // Call this to adjust boid body orientation
+        AlignWithTerrain();
 
         if (CanMate()) isMateable = true;
         else isMateable = false;
@@ -484,61 +499,22 @@ public class Boid_script : MonoBehaviour
         agent.speed = currentSpeed;
     }
 
-    void AlignWithTerrainAndDirection()
+    void AlignWithTerrain()
 {
     RaycastHit hit;
-    Vector3 averageNormal = Vector3.zero;
-    int sampleCount = 6; // Number of samples for averaging
-    float sampleRadius = 1.5f; // Radius for additional raycasting around the agent
 
-    // Cast a ray straight down to detect the ground
-    if (Physics.Raycast(agent.transform.position, Vector3.down, out hit, Mathf.Infinity, groundLayer))
+    // Cast a ray downward to find the terrain under the boid
+    if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, groundLayer))
     {
-        averageNormal += hit.normal; // Start with the ground normal
+        // Get the normal of the terrain where the ray hit
+        Vector3 terrainNormal = hit.normal;
 
-        // Cast additional rays to sample around the agent
-        for (int i = 0; i < sampleCount; i++)
-        {
-            float angle = (i / (float)sampleCount) * Mathf.PI * 2;
-            Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * sampleRadius;
-            Vector3 samplePosition = agent.transform.position + offset;
-
-            // Perform raycast at the sample position
-            if (Physics.Raycast(samplePosition, Vector3.down, out hit, Mathf.Infinity, groundLayer))
-            {
-                averageNormal += hit.normal; // Add the normal from this ray
-                // Draw a debug line to visualize the ray
-                Debug.DrawLine(samplePosition, hit.point, Color.red, 0.1f);
-            }
-        }
-
-        // Normalize the average normal vector
-        averageNormal.Normalize();
-
-        // Find the boid's body (adjust name to 'BodyHolder')
-        Transform bodyHolder = transform.Find("BodyHolder");
+        // Align the BodyHolder transform to match the terrain normal
+        Transform bodyHolder = transform.Find(bodyHolderName);
         if (bodyHolder != null)
         {
-            // Calculate the terrain-aligned rotation using the average normal
-            Quaternion terrainRotation = Quaternion.FromToRotation(Vector3.up, averageNormal);
-
-            // Get the boid's current movement direction (ignore Y-axis)
-            Vector3 moveDirection = agent.velocity.normalized;
-            moveDirection.y = 0; // Ignore Y to maintain level for facing direction
-            if (moveDirection.magnitude > 0.1f) // Ensure there is some movement
-            {
-                Quaternion facingRotation = Quaternion.LookRotation(moveDirection);
-                // Combine the terrain alignment with facing direction
-                Quaternion adjustedRotation = Quaternion.Euler(0f, facingRotation.eulerAngles.y, 0f) * terrainRotation;
-
-                // Directly set the rotation to avoid compounding errors
-                bodyHolder.rotation = adjustedRotation;
-            }
-            else
-            {
-                // Optionally, keep the bodyHolder's rotation aligned with the terrain when stationary
-                bodyHolder.rotation = terrainRotation;
-            }
+            Quaternion targetRotation = Quaternion.FromToRotation(bodyHolder.up, terrainNormal) * bodyHolder.rotation;
+            bodyHolder.rotation = Quaternion.Slerp(bodyHolder.rotation, targetRotation, Time.deltaTime * 5f); // Smooth transition
         }
     }
 }
