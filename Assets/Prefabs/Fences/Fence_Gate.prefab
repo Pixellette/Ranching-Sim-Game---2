@@ -61,7 +61,7 @@ GameObject:
   - component: {fileID: 2633980210747688582}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate_Poles_LOD1
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 6556778328940378985}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate_Frame
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -492,7 +492,7 @@ GameObject:
   - component: {fileID: 2633980210747688580}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate_Poles_LOD0
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -741,7 +741,7 @@ GameObject:
   - component: {fileID: 3241582717925848333}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate.R
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -896,7 +896,7 @@ GameObject:
   - component: {fileID: 4962295888605225232}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate.L
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -967,9 +967,11 @@ GameObject:
   - component: {fileID: 2633980210732437720}
   - component: {fileID: 4492660665976111593}
   - component: {fileID: 3373321036739749139}
+  - component: {fileID: 3556671552633865273}
+  - component: {fileID: 8523435622304207657}
   m_Layer: 10
   m_Name: Fence_Gate
-  m_TagString: Fence
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1041,7 +1043,7 @@ BoxCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.39048338, y: 1.7013233, z: 0.39102316}
@@ -1062,11 +1064,48 @@ BoxCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.39048338, y: 1.7013233, z: 0.392915}
   m_Center: {x: -0.0000026226044, y: 0.651386, z: 2.9986496}
+--- !u!65 &3556671552633865273
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2633980210749691992}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 1
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.5, y: 2, z: 6}
+  m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &8523435622304207657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2633980210749691992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97e19169a7ae8214bb6ed13c96912df3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftGatePart: {fileID: 2633980210749691982}
+  rightGatePart: {fileID: 2633980210749691972}
+  openAngle: 90
+  openSpeed: 3
 --- !u!1 &6320258858720007065
 GameObject:
   m_ObjectHideFlags: 0

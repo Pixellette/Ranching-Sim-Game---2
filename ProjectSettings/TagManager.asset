@@ -12,6 +12,7 @@ TagManager:
   - Grass
   - CinemachineTarget
   - Fence
+  - Gate
   layers:
   - Default
   - TransparentFX

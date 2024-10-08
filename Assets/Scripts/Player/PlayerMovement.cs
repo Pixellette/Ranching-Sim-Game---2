@@ -6,24 +6,34 @@ public class PlayerMovement : MonoBehaviour
 {
     public CharacterController controller;
 
-    public float speed = 5;
-    public float gravity = -9.18f;
-    public float jumpHeight = 3f;
+    [Header ("Movement")]
+        [SerializeField] float speed = 5;
+        [SerializeField] float gravity = -9.18f;
+        [SerializeField] float jumpHeight = 3f;
 
-    public Transform groundCheck;
-    public float groundDistance = 0.4f;
-    public LayerMask groundMask;
+    [Header ("Ground")]
+        [SerializeField] Transform groundCheck;
+        [SerializeField] float groundDistance = 0.4f;
+        [SerializeField] LayerMask groundMask;
+    
+    [Header ("PlayMode")]
+        public bool inBuildMode = false; // PUBLIC for FenceBuilder
 
-    public bool inBuildMode = false;
+    [Header ("Boid Settings")]
+        [SerializeField] float  fleeDuration = 5;
+        [SerializeField] float fleeRadius = 10f;  // Radius within which Boids will flee
+        [SerializeField] LayerMask boidLayerMask; 
+    
+    [Header ("Gate Interaction")]
+        [SerializeField] float gateIntDist;
 
+// ============================== Hidden Variables ==============================
     Vector3 velocity;
     bool isGrounded;
 
-    // public Boid_script boid; // Reference to the boid script where ForceFlee is implemented
-    [SerializeField] float  fleeDuration = 5;
-    [SerializeField] float fleeRadius = 10f;  // Radius within which Boids will flee
-    [SerializeField] LayerMask boidLayerMask; // LayerMask for Boids
-
+    // ============================================================
+    //                           METHODS
+    // ============================================================
     void Update()
     {
         if (!inBuildMode)
@@ -66,6 +76,12 @@ public class PlayerMovement : MonoBehaviour
                 // Trigger the ForceFlee method
                 TriggerFlee();
             }
+
+            // Check for interaction key (e.g., "E")
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                InteractWithGate();
+            }
         }
     }
 
@@ -86,7 +102,75 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Optionally, visualize the radius in the editor for easier tuning
+    void InteractWithGate()
+    {
+        // Define the number of rays to cast and the angle offset for the spread
+        int numberOfRays = 5;
+        float angleOffset = 1.5f; // Degrees to offset each ray from the center
+
+        // Cast multiple rays to improve the detection
+        for (int i = 0; i < numberOfRays; i++)
+        {
+            // Calculate the direction of each ray with a slight spread
+            Vector3 rayDirection = Camera.main.transform.forward;
+
+            // Slightly adjust the ray direction for additional rays
+            if (i == 1)
+            {
+                rayDirection = Quaternion.Euler(angleOffset, 0, 0) * rayDirection; // Slightly upward
+            }
+            else if (i == 2)
+            {
+                rayDirection = Quaternion.Euler(-angleOffset, 0, 0) * rayDirection; // Slightly downward
+            }
+            else if (i == 3)
+            {
+                rayDirection = Quaternion.Euler(0, angleOffset, 0) * rayDirection; // Slightly to the right
+            }
+            else if (i == 4)
+            {
+                rayDirection = Quaternion.Euler(0, -angleOffset, 0) * rayDirection; // Slightly to the left
+            }
+
+            // Perform the raycast using the adjusted ray direction
+            Ray ray = new Ray(Camera.main.transform.position, rayDirection);
+            RaycastHit hit;
+
+            // Raycast within a certain range, e.g., 3 units
+            if (Physics.Raycast(ray, out hit, gateIntDist))
+            {
+                Debug.Log("Raycast hit: " + hit.collider.gameObject.name);
+
+                // Ensure that the hit object is tagged as "Gate"
+                if (hit.collider.CompareTag("Gate"))
+                {
+                    // Get the GateController component from the parent of the hit collider
+                    GateController gate = hit.collider.GetComponentInParent<GateController>();
+
+                    // Check if the gate component is not null before calling ToggleGate()
+                    if (gate != null)
+                    {
+                        gate.ToggleGate();
+                        return; // Stop checking if we've already interacted with the gate
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Gate object is missing GateController component.");
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+    // ============================================================
+    //                          Debug Methods
+    // ============================================================
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
