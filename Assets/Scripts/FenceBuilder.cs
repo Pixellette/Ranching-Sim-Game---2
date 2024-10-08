@@ -444,7 +444,7 @@ public class FenceBuilder : MonoBehaviour
         selectedFences.Clear();
         foreach (Collider collider in colliders)
         {
-            if (collider.CompareTag("Fence"))
+            if (collider.CompareTag("Fence") || collider.CompareTag("Gate"))
             {
                 selectedFences.Add(collider.gameObject);
             }

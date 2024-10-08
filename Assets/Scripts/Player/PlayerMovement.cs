@@ -7,9 +7,9 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController controller;
 
     [Header ("Movement")]
-        [SerializeField] float speed = 5;
+        [SerializeField] float speed;
         [SerializeField] float gravity = -9.18f;
-        [SerializeField] float jumpHeight = 3f;
+        [SerializeField] float jumpHeight;
 
     [Header ("Ground")]
         [SerializeField] Transform groundCheck;
@@ -47,11 +47,11 @@ public class PlayerMovement : MonoBehaviour
 
             if (Input.GetKey("left shift") && isGrounded)
             {
-                speed = 10;
+                speed = 20;
             }
             else
             {
-                speed = 5;
+                speed = 10;
             }
 
             float x = Input.GetAxis("Horizontal");

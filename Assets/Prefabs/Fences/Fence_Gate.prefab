@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1557234376985479479}
   m_Layer: 10
   m_Name: Pole_Obstacle_Left
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -243,7 +243,7 @@ GameObject:
   - component: {fileID: 2633980210747688590}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate.R_LOD1
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 2633980210747688576}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate_Frame_LOD0
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -409,7 +409,7 @@ GameObject:
   - component: {fileID: 2633980210747688578}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate_Frame_LOD1
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -575,7 +575,7 @@ GameObject:
   - component: {fileID: 2633980210747688584}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate.L_LOD0
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -658,7 +658,7 @@ GameObject:
   - component: {fileID: 2633980210747688586}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate.L_LOD1
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -813,7 +813,7 @@ GameObject:
   - component: {fileID: 2633980210747688588}
   m_Layer: 10
   m_Name: TFP_Fence_04A_Gate.R_LOD0
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1118,7 +1118,7 @@ GameObject:
   - component: {fileID: 1993997827343862722}
   m_Layer: 10
   m_Name: Pole_Obstacle_Right
-  m_TagString: Untagged
+  m_TagString: Gate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

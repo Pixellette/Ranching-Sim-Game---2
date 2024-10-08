@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 197005582118149174}
   m_Layer: 7
   m_Name: FirstPersonCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -329,11 +329,13 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 64
+  inBuildMode: 0
   fleeDuration: 5
-  fleeRadius: 10
+  fleeRadius: 50
   boidLayerMask:
     serializedVersion: 2
     m_Bits: 256
+  gateIntDist: 5
 --- !u!1 &8699810313390113690
 GameObject:
   m_ObjectHideFlags: 0
