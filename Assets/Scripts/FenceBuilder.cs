@@ -6,36 +6,33 @@ using UnityEngine.UI;
 public class FenceBuilder : MonoBehaviour
 {
     [Header("Fence Settings")]
-        public GameObject fencePrefab;
-        public GameObject ghostFencePrefab;
-        public LayerMask groundLayer;
-        public LayerMask fenceLayer;
-        public float fenceSegmentLength = 1.0f;
+        [SerializeField] GameObject fencePrefab;
+        [SerializeField] GameObject ghostFencePrefab;
+        [SerializeField] LayerMask groundLayer;
+        [SerializeField] LayerMask fenceLayer;
+        [SerializeField] float fenceSegmentLength = 1.0f;
 
     [Header("Player and Camera Settings")]
-        public GameObject playerBody;
-        public Camera overheadCamera;
-        public Camera playerCamera;
-        public float moveSpeed = 20f;
-        public float overheadHeight = 20f;
-        public float zoomSpeed = 20f;
-        public float maxZoom = 100f;
-        public float minZoom = 20f;
-
-    // [Header("Player Settings")]
-    //     [SerializeField] private GameObject player;
+        [SerializeField] GameObject playerBody;
+        [SerializeField] Camera overheadCamera;
+        [SerializeField] Camera playerCamera;
+        [SerializeField] float moveSpeed = 20f;
+        [SerializeField] float overheadHeight = 20f;
+        [SerializeField] float zoomSpeed = 20f;
+        [SerializeField] float maxZoom = 100f;
+        [SerializeField] float minZoom = 20f;
 
     [Header("UI Panels")]
-        public GameObject buildModeUIPanel; // UI Panel for Build Mode
-        public GameObject gameplayUIPanel;  // UI Panel for Normal Gameplay
+        [SerializeField] GameObject buildModeUIPanel; // UI Panel for Build Mode
+        [SerializeField] GameObject gameplayUIPanel;  // UI Panel for Normal Gameplay
 
     [Header("UI Buttons")]
-        public Button placementModeButton;
-        public Button deletionModeButton;
+        [SerializeField] Button placementModeButton;
+        [SerializeField] Button deletionModeButton;
 
 
+    // ============================== Hidden Variables ==============================
 
-    // Hidden Variables 
     private bool isBuildModeActive = false;
     private bool isPlacementMode = true; // True for placement, false for deletion
     private Vector3? placementPoint = null;
@@ -48,13 +45,16 @@ public class FenceBuilder : MonoBehaviour
     private Vector3 selectionEnd;
     private List<GameObject> selectedFences = new List<GameObject>();
 
+    // ============================================================
+    //                           METHODS 
+    // ============================================================
     void Start()
     {
         overheadCamera.gameObject.SetActive(false);
         ghostFenceSegment = Instantiate(ghostFencePrefab);
         ghostFenceSegment.SetActive(false);
 
-        // Ensure that the correct UI panels are initially visible
+        // Ensure that the correct UI panels are correctly set on start
         buildModeUIPanel.SetActive(false);
         gameplayUIPanel.SetActive(true);
         UpdateButtonColors();
@@ -62,7 +62,7 @@ public class FenceBuilder : MonoBehaviour
 
     void Update()
     {
-        // Toggle Build Mode with B
+        // Toggle Build Mode off and on using B
         if (Input.GetKeyDown(KeyCode.B))
         {
             ToggleBuildMode();
@@ -78,6 +78,11 @@ public class FenceBuilder : MonoBehaviour
             }
         }
     }
+
+    // ============================================================
+    //                       Switching Modes
+    // ============================================================
+
 
     // Method linked to HUD button for Placement Mode
     public void ActivatePlacementMode()
@@ -98,7 +103,6 @@ public class FenceBuilder : MonoBehaviour
         Debug.Log("Switched to Deletion Mode");
     }
 
-    // Toggle Build Mode
     void ToggleBuildMode()
     {
         isBuildModeActive = !isBuildModeActive;
@@ -142,7 +146,6 @@ public class FenceBuilder : MonoBehaviour
         }
     }
 
-
     void PositionOverheadCamera()
     {
         // Set the overhead camera position to match the player's current position
@@ -151,12 +154,32 @@ public class FenceBuilder : MonoBehaviour
         overheadCamera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
+    void UpdateButtonColors()
+    {
+        Color activeColor = Color.white; // Light color for active state
+        Color inactiveColor = Color.gray; // Dark color for inactive state
+
+        if (isPlacementMode)
+        {
+            placementModeButton.GetComponent<Image>().color = activeColor;
+            deletionModeButton.GetComponent<Image>().color = inactiveColor;
+        }
+        else
+        {
+            placementModeButton.GetComponent<Image>().color = inactiveColor;
+            deletionModeButton.GetComponent<Image>().color = activeColor;
+        }
+    }
+
+    // ============================================================
+    //                       Placement Mode
+    // ============================================================
+
     void HandleBuildModeInput()
     {
-        // Ensure the camera only moves in build mode, without any player input interference
         if (isBuildModeActive)
         {
-            // Camera movement using WASD keys (independent of player)
+            // Camera movement using WASD keys 
             float moveX = 0f;
             float moveZ = 0f;
 
@@ -233,11 +256,6 @@ public class FenceBuilder : MonoBehaviour
         }
     }
 
-
-
-
-
-
     void HandleFenceSelection()
     {
         if (Input.GetMouseButtonDown(0))
@@ -270,6 +288,73 @@ public class FenceBuilder : MonoBehaviour
         return Vector3.zero;
     }
 
+    void UpdateGhostFence()
+    {
+        Ray ray = overheadCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
+        {
+            placementPoint = hit.point;
+            ghostFenceSegment.transform.position = placementPoint.Value;
+        }
+    }
+
+    void PlaceFence()
+{
+    if (placementPoint.HasValue)
+    {
+        // Calculate start and end positions of the fence segment
+        Vector3 startPosition = ghostFenceSegment.transform.position - ghostFenceSegment.transform.forward * (fenceSegmentLength / 2);
+        Vector3 endPosition = ghostFenceSegment.transform.position + ghostFenceSegment.transform.forward * (fenceSegmentLength / 2);
+
+        // Perform raycasts at the start and end positions to determine the terrain slope
+        Ray startRay = new Ray(startPosition + Vector3.up * 10, Vector3.down);
+        Ray endRay = new Ray(endPosition + Vector3.up * 10, Vector3.down);
+
+        Vector3 averagePosition = Vector3.zero;
+        Vector3 averageNormal = Vector3.up;
+
+        if (Physics.Raycast(startRay, out RaycastHit startHit, Mathf.Infinity, groundLayer) &&
+            Physics.Raycast(endRay, out RaycastHit endHit, Mathf.Infinity, groundLayer))
+        {
+            // Average the position and normal to determine the average slope
+            averagePosition = (startHit.point + endHit.point) / 2;
+            averageNormal = (startHit.normal + endHit.normal).normalized;
+        }
+        else if (Physics.Raycast(startRay, out startHit, Mathf.Infinity, groundLayer))
+        {
+            // If only the start point hit, use that
+            averagePosition = startHit.point;
+            averageNormal = startHit.normal;
+        }
+        else if (Physics.Raycast(endRay, out endHit, Mathf.Infinity, groundLayer))
+        {
+            // If only the end point hit, use that
+            averagePosition = endHit.point;
+            averageNormal = endHit.normal;
+        }
+
+        // Set the fence rotation to align with the average normal of the terrain
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, averageNormal) * ghostFenceSegment.transform.rotation;
+
+        // Instantiate the new fence at the average position and with the calculated rotation
+        GameObject newFence = Instantiate(fencePrefab, averagePosition, rotation);
+        newFence.tag = "Fence";
+
+        // Add a NavMeshObstacle component if it does not exist
+        NavMeshObstacle obstacle = newFence.GetComponent<NavMeshObstacle>();
+        if (obstacle == null)
+        {
+            newFence.AddComponent<NavMeshObstacle>().carving = true;
+        }
+    }
+}
+
+
+
+    // ============================================================
+    //                       Deletion Mode
+    // ============================================================
+
     void SelectFencesInArea()
     {
         Vector3 min = Vector3.Min(selectionStart, selectionEnd);
@@ -288,6 +373,7 @@ public class FenceBuilder : MonoBehaviour
         Debug.Log($"Selected {selectedFences.Count} fences for deletion.");
     }
 
+    // For Debugging only 
     void DrawSelectionBox()
     {
         Debug.DrawLine(selectionStart, new Vector3(selectionStart.x, selectionStart.y, selectionEnd.z), Color.red);
@@ -304,49 +390,5 @@ public class FenceBuilder : MonoBehaviour
         }
         selectedFences.Clear();
     }
-
-    void UpdateGhostFence()
-    {
-        Ray ray = overheadCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
-        {
-            placementPoint = hit.point;
-            ghostFenceSegment.transform.position = placementPoint.Value;
-        }
-    }
-
-    void PlaceFence()
-    {
-        if (placementPoint.HasValue)
-        {
-            GameObject newFence = Instantiate(fencePrefab, ghostFenceSegment.transform.position, ghostFenceSegment.transform.rotation);
-            newFence.tag = "Fence";
-            NavMeshObstacle obstacle = newFence.GetComponent<NavMeshObstacle>();
-            if (obstacle == null)
-            {
-                newFence.AddComponent<NavMeshObstacle>().carving = true;
-            }
-        }
-    }
-
-
-    void UpdateButtonColors()
-    {
-        Color activeColor = Color.white; // Light color for active state
-        Color inactiveColor = Color.gray; // Dark color for inactive state
-
-        if (isPlacementMode)
-        {
-            placementModeButton.GetComponent<Image>().color = activeColor;
-            deletionModeButton.GetComponent<Image>().color = inactiveColor;
-        }
-        else
-        {
-            placementModeButton.GetComponent<Image>().color = inactiveColor;
-            deletionModeButton.GetComponent<Image>().color = activeColor;
-        }
-    }
-
-
 
 }
