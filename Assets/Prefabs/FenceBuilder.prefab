@@ -53,6 +53,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   fenceSegmentLength: 1
+  gatePrefab: {fileID: 2633980210749691992, guid: 43614f05361483342bab2613006aec2e, type: 3}
+  ghostGatePrefab: {fileID: 2633980210749691992, guid: 6cbb16a4a28c5924d8cd72a9f6a072a4, type: 3}
+  fencePlacementButton: {fileID: 0}
+  gatePlacementButton: {fileID: 0}
   playerBody: {fileID: 0}
   overheadCamera: {fileID: 0}
   playerCamera: {fileID: 0}

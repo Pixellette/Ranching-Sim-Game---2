@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 4395851662021011314}
   - component: {fileID: 4921409968202224940}
   - component: {fileID: 2217521120916958634}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Fence_Pole
-  m_TagString: Untagged
+  m_TagString: Fence
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 4395851662039479250}
   - component: {fileID: 4395851662038152178}
   - component: {fileID: 4395851662037184818}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TFP_Fence_04A_Pole_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -190,7 +190,7 @@ GameObject:
   - component: {fileID: 4395851662039479254}
   - component: {fileID: 4395851662038152176}
   - component: {fileID: 4395851662037184816}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TFP_Fence_04A_Pole_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

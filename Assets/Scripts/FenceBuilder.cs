@@ -12,6 +12,12 @@ public class FenceBuilder : MonoBehaviour
         [SerializeField] LayerMask fenceLayer;
         [SerializeField] float fenceSegmentLength = 1.0f;
 
+    [Header("Gate Settings")]
+        [SerializeField] GameObject gatePrefab;
+        [SerializeField] GameObject ghostGatePrefab;
+        [SerializeField] Button fencePlacementButton;
+        [SerializeField] Button gatePlacementButton;
+
     [Header("Player and Camera Settings")]
         [SerializeField] GameObject playerBody;
         [SerializeField] Camera overheadCamera;
@@ -45,6 +51,9 @@ public class FenceBuilder : MonoBehaviour
     private Vector3 selectionEnd;
     private List<GameObject> selectedFences = new List<GameObject>();
 
+    private bool isPlacingGate = false; // True if the user wants to place a gate, false for fence
+    private GameObject ghostGateSegment;
+
     // ============================================================
     //                           METHODS 
     // ============================================================
@@ -53,11 +62,14 @@ public class FenceBuilder : MonoBehaviour
         overheadCamera.gameObject.SetActive(false);
         ghostFenceSegment = Instantiate(ghostFencePrefab);
         ghostFenceSegment.SetActive(false);
+        ghostGateSegment = Instantiate(ghostGatePrefab);
+        ghostGateSegment.SetActive(false);
 
         // Ensure that the correct UI panels are correctly set on start
         buildModeUIPanel.SetActive(false);
         gameplayUIPanel.SetActive(true);
         UpdateButtonColors();
+        UpdatePlacementButtonColors();
     }
 
     void Update()
@@ -102,6 +114,7 @@ public class FenceBuilder : MonoBehaviour
         UpdateButtonColors();
         Debug.Log("Switched to Deletion Mode");
     }
+
 
     void ToggleBuildMode()
     {
@@ -171,6 +184,50 @@ public class FenceBuilder : MonoBehaviour
         }
     }
 
+    public void ActivateFencePlacementMode()
+    {
+        isPlacingGate = false;
+        isPlacementMode = true;
+        ghostFenceSegment.SetActive(true);
+        ghostGateSegment.SetActive(false);
+        selectedFences.Clear(); // Clear any selections if switching from delete mode
+        UpdateButtonColors();
+        UpdatePlacementButtonColors();
+        Debug.Log("Switched to Fence Placement Mode");
+    }
+
+    public void ActivateGatePlacementMode()
+    {
+        isPlacingGate = true;
+        isPlacementMode = true;
+        ghostFenceSegment.SetActive(false);
+        ghostGateSegment.SetActive(true);
+        selectedFences.Clear(); // Clear any selections if switching from delete mode
+        UpdateButtonColors();
+        UpdatePlacementButtonColors();
+        Debug.Log("Switched to Gate Placement Mode");
+    }
+
+    void UpdatePlacementButtonColors()
+    {
+        Color activeColor = Color.white; // Light color for active state
+        Color inactiveColor = Color.gray; // Dark color for inactive state
+
+        if (isPlacingGate)
+        {
+            gatePlacementButton.GetComponent<Image>().color = activeColor;
+            fencePlacementButton.GetComponent<Image>().color = inactiveColor;
+        }
+        else
+        {
+            gatePlacementButton.GetComponent<Image>().color = inactiveColor;
+            fencePlacementButton.GetComponent<Image>().color = activeColor;
+        }
+    }
+
+
+
+
     // ============================================================
     //                       Placement Mode
     // ============================================================
@@ -225,12 +282,12 @@ public class FenceBuilder : MonoBehaviour
             newPosition.y = Mathf.Clamp(newPosition.y, minZoom, maxZoom);
             overheadCamera.transform.position = newPosition;
 
-            // If in placement mode, handle ghost fence placement and rotation
+            // If in placement mode, handle ghost fence/gate placement and rotation
             if (isPlacementMode)
             {
                 UpdateGhostFence();
 
-                // Rotate the fence using Q and E keys
+                // Rotate the ghost segment using Q and E keys
                 if (Input.GetKey(KeyCode.Q))
                 {
                     currentRotation -= 90f * Time.unscaledDeltaTime;
@@ -240,10 +297,17 @@ public class FenceBuilder : MonoBehaviour
                     currentRotation += 90f * Time.unscaledDeltaTime;
                 }
 
-                // Apply rotation to the ghost fence
-                ghostFenceSegment.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+                // Apply rotation to the correct ghost segment (either fence or gate)
+                if (isPlacingGate)
+                {
+                    ghostGateSegment.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+                }
+                else
+                {
+                    ghostFenceSegment.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+                }
 
-                // Place Fence on Left Click
+                // Place Fence or Gate on Left Click
                 if (Input.GetMouseButtonDown(0))
                 {
                     PlaceFence();
@@ -255,6 +319,7 @@ public class FenceBuilder : MonoBehaviour
             }
         }
     }
+
 
     void HandleFenceSelection()
     {
@@ -294,17 +359,30 @@ public class FenceBuilder : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
         {
             placementPoint = hit.point;
-            ghostFenceSegment.transform.position = placementPoint.Value;
+            if (isPlacingGate)
+            {
+                ghostGateSegment.transform.position = placementPoint.Value;
+            }
+            else
+            {
+                ghostFenceSegment.transform.position = placementPoint.Value;
+            }
         }
     }
+
+
 
     void PlaceFence()
 {
     if (placementPoint.HasValue)
     {
-        // Calculate start and end positions of the fence segment
-        Vector3 startPosition = ghostFenceSegment.transform.position - ghostFenceSegment.transform.forward * (fenceSegmentLength / 2);
-        Vector3 endPosition = ghostFenceSegment.transform.position + ghostFenceSegment.transform.forward * (fenceSegmentLength / 2);
+        // Determine whether placing a fence or gate and get the correct ghost segment
+        GameObject ghostSegment = isPlacingGate ? ghostGateSegment : ghostFenceSegment;
+        GameObject prefabToPlace = isPlacingGate ? gatePrefab : fencePrefab;
+
+        // Calculate start and end positions of the segment (fence or gate)
+        Vector3 startPosition = ghostSegment.transform.position - ghostSegment.transform.forward * (fenceSegmentLength / 2);
+        Vector3 endPosition = ghostSegment.transform.position + ghostSegment.transform.forward * (fenceSegmentLength / 2);
 
         // Perform raycasts at the start and end positions to determine the terrain slope
         Ray startRay = new Ray(startPosition + Vector3.up * 10, Vector3.down);
@@ -333,21 +411,23 @@ public class FenceBuilder : MonoBehaviour
             averageNormal = endHit.normal;
         }
 
-        // Set the fence rotation to align with the average normal of the terrain
-        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, averageNormal) * ghostFenceSegment.transform.rotation;
+        // Set the segment rotation to align with the average normal of the terrain
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, averageNormal) * ghostSegment.transform.rotation;
 
-        // Instantiate the new fence at the average position and with the calculated rotation
-        GameObject newFence = Instantiate(fencePrefab, averagePosition, rotation);
-        newFence.tag = "Fence";
+        // Instantiate the new segment at the average position and with the calculated rotation
+        GameObject newSegment = Instantiate(prefabToPlace, averagePosition, rotation);
+        newSegment.tag = isPlacingGate ? "Gate" : "Fence";
 
         // Add a NavMeshObstacle component if it does not exist
-        NavMeshObstacle obstacle = newFence.GetComponent<NavMeshObstacle>();
+        NavMeshObstacle obstacle = newSegment.GetComponent<NavMeshObstacle>();
         if (obstacle == null)
         {
-            newFence.AddComponent<NavMeshObstacle>().carving = true;
+            newSegment.AddComponent<NavMeshObstacle>().carving = true;
         }
     }
 }
+
+
 
 
 
