@@ -556,6 +556,9 @@ public class Boid_script : MonoBehaviour
             {
                 Quaternion targetRotation = Quaternion.FromToRotation(bodyHolder.up, terrainNormal) * bodyHolder.rotation;
                 bodyHolder.rotation = Quaternion.Slerp(bodyHolder.rotation, targetRotation, Time.deltaTime * 5f); // Smooth transition
+
+                // Correct the forward direction to match agent's forward
+                bodyHolder.forward = Vector3.Slerp(bodyHolder.forward, agent.transform.forward, Time.deltaTime * 5f);
             }
         }
     }
