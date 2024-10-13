@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 public class FenceBuilder : MonoBehaviour
 {
@@ -114,7 +116,6 @@ public class FenceBuilder : MonoBehaviour
         UpdateButtonColors();
         Debug.Log("Switched to Deletion Mode");
     }
-
 
     void ToggleBuildMode()
     {
@@ -320,7 +321,6 @@ public class FenceBuilder : MonoBehaviour
         }
     }
 
-
     void HandleFenceSelection()
     {
         if (Input.GetMouseButtonDown(0))
@@ -370,65 +370,77 @@ public class FenceBuilder : MonoBehaviour
         }
     }
 
-
-
     void PlaceFence()
-{
-    if (placementPoint.HasValue)
     {
-        // Determine whether placing a fence or gate and get the correct ghost segment
-        GameObject ghostSegment = isPlacingGate ? ghostGateSegment : ghostFenceSegment;
-        GameObject prefabToPlace = isPlacingGate ? gatePrefab : fencePrefab;
-
-        // Calculate start and end positions of the segment (fence or gate)
-        Vector3 startPosition = ghostSegment.transform.position - ghostSegment.transform.forward * (fenceSegmentLength / 2);
-        Vector3 endPosition = ghostSegment.transform.position + ghostSegment.transform.forward * (fenceSegmentLength / 2);
-
-        // Perform raycasts at the start and end positions to determine the terrain slope
-        Ray startRay = new Ray(startPosition + Vector3.up * 10, Vector3.down);
-        Ray endRay = new Ray(endPosition + Vector3.up * 10, Vector3.down);
-
-        Vector3 averagePosition = Vector3.zero;
-        Vector3 averageNormal = Vector3.up;
-
-        if (Physics.Raycast(startRay, out RaycastHit startHit, Mathf.Infinity, groundLayer) &&
-            Physics.Raycast(endRay, out RaycastHit endHit, Mathf.Infinity, groundLayer))
+        // Prevent placement if the pointer is over a UI element
+        if (IsPointerOverBuildHUD())
         {
-            // Average the position and normal to determine the average slope
-            averagePosition = (startHit.point + endHit.point) / 2;
-            averageNormal = (startHit.normal + endHit.normal).normalized;
-        }
-        else if (Physics.Raycast(startRay, out startHit, Mathf.Infinity, groundLayer))
-        {
-            // If only the start point hit, use that
-            averagePosition = startHit.point;
-            averageNormal = startHit.normal;
-        }
-        else if (Physics.Raycast(endRay, out endHit, Mathf.Infinity, groundLayer))
-        {
-            // If only the end point hit, use that
-            averagePosition = endHit.point;
-            averageNormal = endHit.normal;
+            Debug.Log("Pointer is over a build mode HUD element, skipping fence placement.");
+            return;
         }
 
-        // Set the segment rotation to align with the average normal of the terrain
-        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, averageNormal) * ghostSegment.transform.rotation;
-
-        // Instantiate the new segment at the average position and with the calculated rotation
-        GameObject newSegment = Instantiate(prefabToPlace, averagePosition, rotation);
-        newSegment.tag = isPlacingGate ? "Gate" : "Fence";
-
-        // Add a NavMeshObstacle component if it does not exist
-        NavMeshObstacle obstacle = newSegment.GetComponent<NavMeshObstacle>();
-        if (obstacle == null)
+        if (placementPoint.HasValue)
         {
-            newSegment.AddComponent<NavMeshObstacle>().carving = true;
+            // Determine whether placing a fence or gate and get the correct ghost segment
+            GameObject ghostSegment = isPlacingGate ? ghostGateSegment : ghostFenceSegment;
+            GameObject prefabToPlace = isPlacingGate ? gatePrefab : fencePrefab;
+
+            // Calculate start and end positions of the segment (fence or gate)
+            Vector3 startPosition = ghostSegment.transform.position - ghostSegment.transform.forward * (fenceSegmentLength / 2);
+            Vector3 endPosition = ghostSegment.transform.position + ghostSegment.transform.forward * (fenceSegmentLength / 2);
+
+            // Perform raycasts at the start and end positions to determine the terrain slope
+            Ray startRay = new Ray(startPosition + Vector3.up * 10, Vector3.down);
+            Ray endRay = new Ray(endPosition + Vector3.up * 10, Vector3.down);
+
+            Vector3 averagePosition = Vector3.zero;
+            Vector3 averageNormal = Vector3.up;
+
+            if (Physics.Raycast(startRay, out RaycastHit startHit, Mathf.Infinity, groundLayer) &&
+                Physics.Raycast(endRay, out RaycastHit endHit, Mathf.Infinity, groundLayer))
+            {
+                // Average the position and normal to determine the average slope
+                averagePosition = (startHit.point + endHit.point) / 2;
+                averageNormal = (startHit.normal + endHit.normal).normalized;
+            }
+            else if (Physics.Raycast(startRay, out startHit, Mathf.Infinity, groundLayer))
+            {
+                // If only the start point hit, use that
+                averagePosition = startHit.point;
+                averageNormal = startHit.normal;
+            }
+            else if (Physics.Raycast(endRay, out endHit, Mathf.Infinity, groundLayer))
+            {
+                // If only the end point hit, use that
+                averagePosition = endHit.point;
+                averageNormal = endHit.normal;
+            }
+
+            // Set the segment rotation to align with the average normal of the terrain
+            Quaternion rotation = Quaternion.FromToRotation(Vector3.up, averageNormal) * ghostSegment.transform.rotation;
+
+            // Instantiate the new segment at the average position and with the calculated rotation
+            GameObject newSegment = Instantiate(prefabToPlace, averagePosition, rotation);
+            newSegment.tag = isPlacingGate ? "Gate" : "Fence";
+
+            // Add a NavMeshObstacle component if it does not exist
+            NavMeshObstacle obstacle = newSegment.GetComponent<NavMeshObstacle>();
+            if (obstacle == null)
+            {
+                newSegment.AddComponent<NavMeshObstacle>().carving = true;
+            }
         }
     }
-}
 
-
-
+    private bool IsPointerOverBuildHUD()
+    {
+        // Check if the pointer is over any of the buttons for build mode
+        return EventSystem.current.IsPointerOverGameObject() && 
+            (EventSystem.current.currentSelectedGameObject == fencePlacementButton.gameObject ||
+                EventSystem.current.currentSelectedGameObject == gatePlacementButton.gameObject ||
+                EventSystem.current.currentSelectedGameObject == placementModeButton.gameObject ||
+                EventSystem.current.currentSelectedGameObject == deletionModeButton.gameObject);
+    }
 
 
     // ============================================================
