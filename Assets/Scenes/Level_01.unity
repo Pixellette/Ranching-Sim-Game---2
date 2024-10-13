@@ -916,7 +916,7 @@ PrefabInstance:
       objectReference: {fileID: 1309847904}
     - target: {fileID: 1340861406794740611, guid: 42670abd220e76447891726675d4f51b, type: 3}
       propertyPath: edgeOffset
-      value: 80
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 1340861406794740611, guid: 42670abd220e76447891726675d4f51b, type: 3}
       propertyPath: terrainXPos
@@ -928,7 +928,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1340861406794740611, guid: 42670abd220e76447891726675d4f51b, type: 3}
       propertyPath: numberOfGrass
-      value: 600
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 3859496692775161531, guid: 42670abd220e76447891726675d4f51b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1994,6 +1994,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenuUI: {fileID: 588338971}
+  buildMenuUI: {fileID: 1909562133}
   controlsUI: {fileID: 1288626901}
   mainMenuName: MainMenu
 --- !u!114 &843556474
@@ -2203,11 +2204,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: numCow
-      value: 300
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: numSheep
-      value: 500
+      value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: fleeChance
@@ -2227,7 +2228,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: maxCowPopulation
-      value: 800
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: fleeCohesionWeight
@@ -2235,7 +2236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: maxSheepPopulation
-      value: 1200
+      value: 1500
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: contagiousFleeRange
@@ -3299,7 +3300,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1413807149}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
@@ -3634,6 +3635,10 @@ PrefabInstance:
     - target: {fileID: 8171005997478131900, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: m_Name
       value: First Person Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8171005997478131900, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4654,6 +4659,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1821598497}
   m_CullTransparentMesh: 1
+--- !u!1 &1909562133 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8979168443089602284, guid: 9bf4493df14706d4a897e41abff9bc7f, type: 3}
+  m_PrefabInstance: {fileID: 2130026170}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1944132530
 GameObject:
   m_ObjectHideFlags: 0
@@ -4956,6 +4966,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 280009584}
     - target: {fileID: 3246569392186291522, guid: 9bf4493df14706d4a897e41abff9bc7f, type: 3}
+      propertyPath: PauseMenuUI
+      value: 
+      objectReference: {fileID: 843556471}
+    - target: {fileID: 3246569392186291522, guid: 9bf4493df14706d4a897e41abff9bc7f, type: 3}
       propertyPath: playerCamera
       value: 
       objectReference: {fileID: 2091389262}
@@ -5041,7 +5055,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3246569392186291522, guid: 9bf4493df14706d4a897e41abff9bc7f, type: 3}
   m_PrefabInstance: {fileID: 2130026170}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1909562133}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0560932b3c20b954697a06d2a1160218, type: 3}

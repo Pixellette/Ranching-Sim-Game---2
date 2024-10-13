@@ -10,6 +10,7 @@ public class PauseMenu : MonoBehaviour
     public static bool gameIsPaused = false;
 
     public GameObject pauseMenuUI;
+    public GameObject buildMenuUI;
     public GameObject controlsUI;
 
     public String mainMenuName;
@@ -37,7 +38,8 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         pauseMenuUI.SetActive(false);
-        Time.timeScale = 1f;
+
+        if(!buildMenuUI.GetComponent<FenceBuilder>().isBuildModeActive) Time.timeScale = 1f; // can unpause as not in build mode 
         gameIsPaused = false;
     }
 

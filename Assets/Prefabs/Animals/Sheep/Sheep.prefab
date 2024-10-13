@@ -92,7 +92,7 @@ MonoBehaviour:
   minHunger: 0
   hungerRate: 0.3
   eatAmount: 1
-  hungerAdded: 30
+  hungerAdded: 100
   isPeckish: 0
   isHungry: 0
   isStarving: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   peckishChance: 5
   hungryChance: 20
   starvingChance: 90
-  searchRadius: 30
+  searchRadius: 50
   reqProxToGrass: 3
   grassLayer:
     serializedVersion: 2

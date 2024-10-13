@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 
 public class FenceBuilder : MonoBehaviour
 {
+    // [SerializeField] GameObject PauseMenuUI;
     [Header("Fence Settings")]
         [SerializeField] GameObject fencePrefab;
         [SerializeField] GameObject ghostFencePrefab;
@@ -41,7 +42,7 @@ public class FenceBuilder : MonoBehaviour
 
     // ============================== Hidden Variables ==============================
 
-    private bool isBuildModeActive = false;
+    public bool isBuildModeActive = false;
     private bool isPlacementMode = true; // True for placement, false for deletion
     private Vector3? placementPoint = null;
     private GameObject ghostFenceSegment;
@@ -77,7 +78,7 @@ public class FenceBuilder : MonoBehaviour
     void Update()
     {
         // Toggle Build Mode off and on using B
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.B) && !PauseMenu.gameIsPaused)
         {
             ToggleBuildMode();
         }
@@ -148,6 +149,7 @@ public class FenceBuilder : MonoBehaviour
             playerBody.GetComponent<PlayerMovement>().inBuildMode = false;
 
             ghostFenceSegment.SetActive(false);
+            ghostGateSegment.SetActive(false);
             placementPoint = null;
             selectedFences.Clear();
 
@@ -373,7 +375,7 @@ public class FenceBuilder : MonoBehaviour
     void PlaceFence()
     {
         // Prevent placement if the pointer is over a UI element
-        if (IsPointerOverBuildHUD())
+        if (IsPointerOverBuildHUD() || PauseMenu.gameIsPaused)
         {
             Debug.Log("Pointer is over a build mode HUD element, skipping fence placement.");
             return;

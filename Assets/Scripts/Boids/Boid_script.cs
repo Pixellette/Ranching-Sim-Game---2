@@ -34,6 +34,7 @@ public class Boid_script : MonoBehaviour
         [SerializeField] bool isFlocking = false; // For DEBUG only
         // [SerializeField] bool isEating = false; // For DEBUG only 
         [SerializeField] bool lookingForFood = false;
+        [SerializeField] bool checkingGrass = false; // TODO: 
         [SerializeField] bool currentlyEating = false; // For anims
         [SerializeField] bool isMating = false; // For DEBUG only 
 
@@ -81,7 +82,7 @@ public class Boid_script : MonoBehaviour
         [SerializeField] float reqProxToGrass;
 
         public LayerMask grassLayer; // Layer mask to identify grass
-        private Grass targetGrass; // Current target grass for the boid
+         [SerializeField] private Grass targetGrass; // Current target grass for the boid
 
     [Header ("Breeding Settings")]
         [SerializeField] bool isMateable = false;
@@ -322,7 +323,7 @@ public class Boid_script : MonoBehaviour
             if (UnityEngine.Random.Range(0, 100) < calculatedFleeChance)
             {
                 // Start fleeing
-                Debug.Log("flee chain of " + calculatedFleeChance + " from " + fleeingNeighbours + " neighbours");
+                // Debug.Log("flee chain of " + calculatedFleeChance + " from " + fleeingNeighbours + " neighbours");
                 isFleeing = true;
                 Invoke("StopFleeing", 3);
                 return true;
@@ -492,9 +493,19 @@ public class Boid_script : MonoBehaviour
         }
         else
         {
-            // No obstacle, move directly to the target location
-            agent.SetDestination(location);
+             // Find the closest valid position on the NavMesh
+            NavMeshHit navMeshHit;
+            if (NavMesh.SamplePosition(location, out navMeshHit, 5.0f, NavMesh.AllAreas))
+            {
+                agent.SetDestination(navMeshHit.position);
+            }
+            else
+            {
+                // Debug.LogWarning("Seek: Unable to find a valid nearby position for destination: " + location);
+            }
         }
+
+
     } 
 
     void Flee(Vector3 location)
@@ -520,8 +531,13 @@ public class Boid_script : MonoBehaviour
         Vector3 targetLocal = wanderTarget + new Vector3(0, 0, FlockManager.FM.wanderDistance); // local because we are imagining the Agent as the center of the world
         Vector3 targetWorld = this.gameObject.transform.TransformPoint(targetLocal); // Now convert to world location 
 
-        // Finally Seek the target location
-        Seek(targetWorld);
+        // Finally, check the target point is on the NavMesh
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(targetWorld, out hit, FlockManager.FM.wanderRadius, NavMesh.AllAreas))
+        {
+            // Seek the closest valid position on the NavMesh
+            Seek(hit.position);
+        }
     }
 
     void SetSpeed()
@@ -546,7 +562,7 @@ public class Boid_script : MonoBehaviour
 
         // Cast a ray downward to find the terrain under the boid
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, groundLayer))
-        {
+        { 
             // Get the normal of the terrain where the ray hit
             Vector3 terrainNormal = hit.normal;
 
@@ -680,6 +696,13 @@ public class Boid_script : MonoBehaviour
             cohesion /= groupSize;
             Vector3 toCohesion = (cohesion - transform.position).normalized;
 
+            if (alignment == Vector3.zero && cohesion == Vector3.zero)
+            {
+                // Introduce some random movement to keep the boid dynamic
+                alignment = UnityEngine.Random.insideUnitSphere * 0.5f; // Adjust this value to control the level of random movement
+            }
+
+
             // Combine the three behaviors with weighting factors
             Vector3 moveDirection = (separation * FlockManager.FM.separationWeight) + (alignment * alignmentWeight) + (toCohesion * cohesionWeight);
 
@@ -706,13 +729,14 @@ public class Boid_script : MonoBehaviour
                 Vector3 newDestination = transform.position + moveDirection.normalized * 10f;   
                 Seek(newDestination);
             }
-            else 
+            else
             {
                 Wander();
+                CancelInvoke("BehavoiurCooldown");
+                Invoke("BehavoiurCooldown", 3);
                 isWandering = true;
                 isFlocking = false;
             }
-            
         }
     }
 
@@ -739,7 +763,7 @@ public class Boid_script : MonoBehaviour
         // Clear the current pathfinding destination
         // GetComponent<NavMeshAgent>().ResetPath();
 
-        if (targetGrass == null || !targetGrass.IsTallEnough() || Vector3.Distance(transform.position, targetGrass.transform.position) > searchRadius)
+        if (targetGrass == null || !targetGrass.IsTallEnough() )
         {
             FindGrass(); // Look for grass when hungry and current target is invalid
         }
@@ -772,7 +796,7 @@ public class Boid_script : MonoBehaviour
                     // Perform a raycast to check for obstacles between the Boid and the grass
                     if (Physics.Raycast(transform.position, directionToGrass.normalized, out RaycastHit hit, distance, fenceLayer))
                     {
-                        // If the raycast hits something that is not the grass, discard this grass
+                        // If the raycast hits something discard this grass
                         if (hit.collider != grassCollider)
                         {
                             continue;
@@ -790,6 +814,7 @@ public class Boid_script : MonoBehaviour
             if (closestGrass != null)
             {
                 targetGrass = closestGrass.GetComponent<Grass>();
+                Seek(targetGrass.transform.position);
                 // Seek will be called in CheckHunger after setting targetGrass
             }
             else
@@ -801,19 +826,30 @@ public class Boid_script : MonoBehaviour
                 lookingForFood = false;
             }
         }
-        else
+        else // There is no grass to find
         {
             targetGrass = null; // Reset target if no grass is found
 
             // Didn't find grass so keep moving
             // Debug.Log("Didn't find grass - none in range");
             lookingForFood = false;
+            CancelInvoke("StopSearchingForFood");
+            ChooseMovementBehavior();
         }
     }
 
     private void CheckArrival()
     {
-        if (targetGrass == null) return; // Early exit if no valid targetGrass
+        // if (targetGrass == null ) return; // Early exit if no valid targetGrass
+
+        if (targetGrass == null || !targetGrass.IsTallEnough())
+        {
+            targetGrass = null;
+            FindGrass();
+        }
+        
+
+    
 
         // Check if the boid has reached the grass
         if (Vector3.Distance(transform.position, targetGrass.transform.position) < reqProxToGrass) 
@@ -1064,9 +1100,9 @@ public class Boid_script : MonoBehaviour
                     if(isSheep && UnityEngine.Random.Range(0,10) <= 5) // Sheep often have twins
                     {
                         FlockManager.FM.SpawnAnimal(species, 2, spawnLocation); // varientIndex of 2 = baby verion of animal
-                        Debug.Log("TWIN Baby " + species + " born!");
+                        // Debug.Log("TWIN Baby " + species + " born!");
                     }
-                    else Debug.Log("Baby " + species + " born!");
+                    // else Debug.Log("Baby " + species + " born!");
                 }
                 
             }
@@ -1080,7 +1116,7 @@ public class Boid_script : MonoBehaviour
     void StopGrowing()
     {
         stillGrowing = false;
-        Debug.Log("A baby should now be grown up");
+        // Debug.Log("A baby should now be grown up");
     }
 
     void GrowUp()
@@ -1114,7 +1150,7 @@ public class Boid_script : MonoBehaviour
     void StarvingTimer() // Invoke Method
     {
         // Animal dies now
-        Debug.Log("Animal Death");
+        // Debug.Log("Animal Death");
         if(isSheep) FlockManager.FM.RemoveAnimal(gameObject, "sheep");
         else if (isCattle) FlockManager.FM.RemoveAnimal(gameObject, "cattle");
         else Debug.LogError("Couldn't find species for animal starving death");
