@@ -8,7 +8,9 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviour
 {
     public static bool gameIsPaused = false;
+
     public GameObject pauseMenuUI;
+    public GameObject controlsUI;
 
     public String mainMenuName;
 
@@ -20,10 +22,13 @@ public class PauseMenu : MonoBehaviour
             if (gameIsPaused)
             {
                 Resume();
+                Debug.Log("Unpausing Game");
             }
             else
             {
                 Pause();
+
+                Debug.Log("Pausing Game");
             }
         }
     }
@@ -42,6 +47,18 @@ public class PauseMenu : MonoBehaviour
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f;
         gameIsPaused = true;
+    }
+
+    public void ShowControls()
+    {
+        pauseMenuUI.SetActive(false);  
+        controlsUI.SetActive(true);
+    }
+
+    public void ReturnToPauseMenu()
+    {
+        controlsUI.SetActive(false);   
+        pauseMenuUI.SetActive(true);  
     }
 
 

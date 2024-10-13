@@ -330,9 +330,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Little River
+  m_text: 'Peaceful
 
-    Ranch'
+    Plains'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
@@ -1920,7 +1920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 203948939df678d47b69d784c4624073, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newGameScene: Level
+  newGameScene: Level_01
   loadingScreen: {fileID: 677945894}
   MainMenuScreen: {fileID: 1331888238}
   slider: {fileID: 1146877799}
