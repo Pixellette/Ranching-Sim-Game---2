@@ -39,7 +39,7 @@ public class Boid_script : MonoBehaviour
 
 
     [Header ("Wander Settings")]
-        [SerializeField] Vector3 wanderTarget = Vector3.zero; // cannot be local as needs to remember between calls
+        [SerializeField] Vector3 wanderTarget = Vector3.zero; 
 
     
     [Header ("Species")]
@@ -57,7 +57,7 @@ public class Boid_script : MonoBehaviour
     [Header ("Hunger")]
         [SerializeField] float searchTimer;
         [SerializeField] float eatingTimer;
-        [SerializeField] float currentHunger; 
+        [SerializeField] float currentHunger;  // smaller number means more hungry
         [SerializeField] int displayedHunger;
         [SerializeField] float maxHunger = 100f;
         [SerializeField] float minHunger = 0f;
@@ -113,7 +113,6 @@ public class Boid_script : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         animator = GetComponentInChildren<Animator>();
-        // animator = transform.Find("TFP_Sheep_01A").GetComponent<Animator>();
         if (animator == null)
         {
             Debug.LogError("Animator component not found on the specified child object.");
@@ -121,7 +120,7 @@ public class Boid_script : MonoBehaviour
 
         target = GameObject.FindWithTag("Predator");
 
-        // Set up NavMeshAgent settings to utilize Unity's built-in slope alignment
+        // Set up NavMeshAgent settings
         agent.updatePosition = true;     // Let the agent manage position updates
         agent.updateRotation = true;     // Let the agent rotate to match direction
         agent.updateUpAxis = true;       // Allow the agent to update the up-axis to align with the terrain
@@ -249,8 +248,6 @@ public class Boid_script : MonoBehaviour
         }
     }
 
-    
-
     bool FleeBehaviourCheck()
     {
         if (isFleeing) // Already fleeing
@@ -278,10 +275,60 @@ public class Boid_script : MonoBehaviour
             Invoke("StopFleeing", 5);
             return true;
         }
-        else 
+        else // Not fleeing
         {
-            // Not fleeing
-            return false; 
+            // Check if the predator is within the set range before considering contagious fleeing
+            if (!TargetInRange(FlockManager.FM.contagiousFleeRange))
+            {
+                return false;
+            }
+
+            // Get nearby boids
+            Collider[] nearbyBoids = Physics.OverlapSphere(transform.position, FlockManager.FM.neighbourDistance, boidLayer);
+            
+            // If no nearby boids, return false immediately
+            if (nearbyBoids.Length == 0)
+            {
+                return false;
+            }
+
+            int fleeingNeighbours = 0;
+            foreach (Collider boidCollider in nearbyBoids)
+            {
+                if (boidCollider.gameObject != this.gameObject) // Ignore self
+                {
+                    Boid_script nearbyBoid = boidCollider.GetComponent<Boid_script>();
+                    if (nearbyBoid != null && nearbyBoid.isFleeing)
+                    {
+                        // Check if the species matches
+                        if ((this.isCattle && nearbyBoid.isCattle) || (this.isSheep && nearbyBoid.isSheep))
+                        {
+                            fleeingNeighbours++;
+                        }
+                    }
+                }
+            }
+
+            // If no fleeing neighbors, return false immediately
+            if (fleeingNeighbours == 0)
+            {
+                return false;
+            }
+
+            // Calculate flee chance based on the number of fleeing neighbors
+            float calculatedFleeChance = Mathf.Clamp(fleeingNeighbours * FlockManager.FM.fleeChance, 0, 100);
+
+            // Use the calculated flee chance for random decision making
+            if (UnityEngine.Random.Range(0, 100) < calculatedFleeChance)
+            {
+                // Start fleeing
+                Debug.Log("flee chain of " + calculatedFleeChance + " from " + fleeingNeighbours + " neighbours");
+                isFleeing = true;
+                Invoke("StopFleeing", 3);
+                return true;
+            }
+            
+            return false;
         }
     }
 
@@ -352,8 +399,6 @@ public class Boid_script : MonoBehaviour
         }
     }
 
-
-    
     private void ChooseMovementBehavior()
     {
         int cooldownTime = UnityEngine.Random.Range(FlockManager.FM.minWait, FlockManager.FM.maxWait);
@@ -378,17 +423,17 @@ public class Boid_script : MonoBehaviour
         }
     }
 
-    void BehavoiurCooldown()
+    void BehavoiurCooldown() // Invoke Method
     {
         behaviorOnCooldown = false;
     }
 
-    void StopFleeing() 
+    void StopFleeing() // Invoke Method
     {
         isFleeing = false;
     }
 
-    void StopSearchingForFood()
+    void StopSearchingForFood() // Invoke Method
     {
         lookingForFood = false;
     }
@@ -402,17 +447,17 @@ public class Boid_script : MonoBehaviour
         return false;
     }
 
-    void BreedingCooldown()
+    void BreedingCooldown() // Invoke Method
     {
         breedable = true;
     }
 
     public void ForceFlee(float fleeDuration)
     {
-        // Ensure that fleeing behavior is prioritized
+        // Turn on flee
         isFleeing = true;
 
-        // Reset any other behaviors
+        // Reset other behaviors
         isFlocking = false;
         isWandering = false;
         lookingForFood = false;
@@ -424,7 +469,6 @@ public class Boid_script : MonoBehaviour
         CancelInvoke("StopFleeing");
         Invoke("StopFleeing", fleeDuration);
     }
-
 
 
     // ============================================================
@@ -453,13 +497,11 @@ public class Boid_script : MonoBehaviour
         }
     } 
 
-
     void Flee(Vector3 location)
     {
         Vector3 fleeVector = location - this.transform.position;
         Vector3 fleeLocation = this.transform.position - fleeVector;
 
-        // Seek(fleeLocation);
         ApplyFlockingRules(fleeLocation);
     }
 
@@ -467,7 +509,7 @@ public class Boid_script : MonoBehaviour
     void Wander()
     {
         wanderTarget += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f) * FlockManager.FM.wanderJitter,   // X
-                                    0,                                                      // Y
+                                    0,                                                                      // Y
                                     UnityEngine.Random.Range(-1.0f, 1.0f) * FlockManager.FM.wanderJitter);  // Z
 
         // Move the target back onto the circle (currently ON the Agent)
@@ -481,7 +523,6 @@ public class Boid_script : MonoBehaviour
         // Finally Seek the target location
         Seek(targetWorld);
     }
-
 
     void SetSpeed()
     {
@@ -651,7 +692,7 @@ public class Boid_script : MonoBehaviour
             // Seek the new destination
             Seek(newDestination);
         }
-        else 
+        else // No boid friends, make decisions alone
         {
             if(isFleeing)
             {
@@ -671,8 +712,6 @@ public class Boid_script : MonoBehaviour
             
         }
     }
-
-
 
     // ============================================================
     //                       Hunger Methods! 
@@ -868,7 +907,6 @@ public class Boid_script : MonoBehaviour
         }
     }
 
-    
 
     // ============================================================
     //                       Start Up Methods
@@ -1177,7 +1215,7 @@ public class Boid_script : MonoBehaviour
             Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, targetGrass.transform.position); // Draw a line from the boid to the grass
 
-            // Optionally, you can draw a sphere at the grass position to highlight it
+            // Draw a sphere at the grass position to highlight it
             Gizmos.DrawWireSphere(targetGrass.transform.position, 0.5f);
         }
     }

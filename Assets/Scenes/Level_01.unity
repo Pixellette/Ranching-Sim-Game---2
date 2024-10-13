@@ -2210,6 +2210,14 @@ PrefabInstance:
       value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
+      propertyPath: fleeChance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
+      propertyPath: fleeWeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: spawnRangeCow
       value: 200
       objectReference: {fileID: 0}
@@ -2222,8 +2230,16 @@ PrefabInstance:
       value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
+      propertyPath: fleeCohesionWeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: maxSheepPopulation
       value: 1200
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434658994327271820, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
+      propertyPath: contagiousFleeRange
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 4360224232630883200, guid: 0ef4f86429f496541871ba5cdd930588, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3610,6 +3626,10 @@ PrefabInstance:
     - target: {fileID: 7433819597549915268, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: speed
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7433819597549915268, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
+      propertyPath: boidLayerMask.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 8171005997478131900, guid: cad30cc7cad951f488f5338f95fc9032, type: 3}
       propertyPath: m_Name
