@@ -19,11 +19,15 @@ public class LookControls : MonoBehaviour
     private float yZoneOneThreshold;
     private float yZoneTwoThreshold;
 
-    private Transform playerBody; // Reference to the player body
-    private Transform cameraTransform; // Reference to the camera
+    private Transform playerBody; 
+    private Transform cameraTransform; 
 
     void Start()
     {
+        // Lock the cursor to the game window and hide it
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         // Calculate screen width and height in pixels
         float screenWidth = Screen.width;
         float screenHeight = Screen.height;
@@ -35,8 +39,8 @@ public class LookControls : MonoBehaviour
         yZoneTwoThreshold = screenHeight * (zoneHeightPercentage * 2);
         
         // Assign player body and camera references
-        playerBody = transform; // Assuming this script is on the player body
-        cameraTransform = Camera.main.transform; // Assuming the main camera is used
+        playerBody = transform; 
+        cameraTransform = Camera.main.transform; 
     }
 
     void Update()

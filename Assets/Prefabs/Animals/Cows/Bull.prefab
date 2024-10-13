@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5059339857767045406}
   - component: {fileID: 1573858704572849225}
   - component: {fileID: 4714565325309843445}
+  - component: {fileID: -8922554120667036598}
   m_Layer: 8
   m_Name: Bull
   m_TagString: Cow
@@ -165,6 +166,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &-8922554120667036598
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5573219670902649266}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.8, y: 1.8, z: 2.6}
+  m_Center: {x: 0, y: 0.8, z: 0.3}
 --- !u!1001 &9165605784673877701
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -92,14 +92,19 @@ public class PlayerMovement : MonoBehaviour
         Collider[] boidsInRadius = Physics.OverlapSphere(transform.position, fleeRadius, boidLayerMask);
 
         // Loop through each collider and apply ForceFlee to the boids
+
+        Debug.Log("Shouting to " + boidsInRadius.Length + " boids.");
+        
         foreach (Collider col in boidsInRadius)
         {
+            
             Boid_script boid = col.GetComponent<Boid_script>();
             if (boid != null)
             {
                 boid.ForceFlee(fleeDuration);
             }
         }
+        
     }
 
     void InteractWithGate()
@@ -164,16 +169,32 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-
-
-
     // ============================================================
     //                          Debug Methods
     // ============================================================
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, fleeRadius);
-    }
+    // void OnDrawGizmosSelected()
+    // {
+    //     // Set the gizmo color to red and draw the wire sphere for the flee radius
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawWireSphere(transform.position, fleeRadius);
+
+    //     // Get all colliders within the flee radius that are part of the boid layer
+    //     Collider[] boidsInRadius = Physics.OverlapSphere(transform.position, fleeRadius, boidLayerMask);
+
+    //     // Set the gizmo color to yellow for drawing lines to each boid
+    //     Gizmos.color = Color.yellow;
+
+    //     // Loop through each collider and draw a line to each boid detected
+    //     foreach (Collider col in boidsInRadius)
+    //     {
+    //         Boid_script boid = col.GetComponent<Boid_script>();
+    //         if (boid != null)
+    //         {
+    //             // Draw a line from the current boid to each detected boid
+    //             Gizmos.DrawLine(transform.position, boid.transform.position);
+    //         }
+    //     }
+    // }
+
 }

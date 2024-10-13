@@ -500,24 +500,24 @@ public class Boid_script : MonoBehaviour
     }
 
     void AlignWithTerrain()
-{
-    RaycastHit hit;
-
-    // Cast a ray downward to find the terrain under the boid
-    if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, groundLayer))
     {
-        // Get the normal of the terrain where the ray hit
-        Vector3 terrainNormal = hit.normal;
+        RaycastHit hit;
 
-        // Align the BodyHolder transform to match the terrain normal
-        Transform bodyHolder = transform.Find(bodyHolderName);
-        if (bodyHolder != null)
+        // Cast a ray downward to find the terrain under the boid
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, groundLayer))
         {
-            Quaternion targetRotation = Quaternion.FromToRotation(bodyHolder.up, terrainNormal) * bodyHolder.rotation;
-            bodyHolder.rotation = Quaternion.Slerp(bodyHolder.rotation, targetRotation, Time.deltaTime * 5f); // Smooth transition
+            // Get the normal of the terrain where the ray hit
+            Vector3 terrainNormal = hit.normal;
+
+            // Align the BodyHolder transform to match the terrain normal
+            Transform bodyHolder = transform.Find(bodyHolderName);
+            if (bodyHolder != null)
+            {
+                Quaternion targetRotation = Quaternion.FromToRotation(bodyHolder.up, terrainNormal) * bodyHolder.rotation;
+                bodyHolder.rotation = Quaternion.Slerp(bodyHolder.rotation, targetRotation, Time.deltaTime * 5f); // Smooth transition
+            }
         }
     }
-}
 
 
 
